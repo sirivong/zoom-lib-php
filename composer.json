@@ -1,0 +1,16 @@
+{
+  "name": "zoom/zoom-lib-php",
+  "type": "library",
+  "description": "Zoom PHP Library",
+  "keywords": ["zoom","video","api"],
+  "license": "MIT",
+  "require": {
+    "php": ">=5.4.0"
+  },
+  "authors": [
+    {
+      "name": "Joshua Woodward",
+      "email": "joshua.woodward@zoom.us"
+    }
+  ]
+}
