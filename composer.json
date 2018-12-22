@@ -2,15 +2,30 @@
   "name": "zoom/zoom-lib-php",
   "type": "library",
   "description": "Zoom PHP Library",
-  "keywords": ["zoom","video","api"],
+  "keywords": [
+    "zoom",
+    "video",
+    "api"
+  ],
   "license": "MIT",
   "require": {
-    "php": ">=5.4.0"
+    "php": ">=7.1.0",
+    "guzzlehttp/guzzle": "~6.0",
+    "nesbot/carbon": "^2.8",
+    "lcobucci/jwt": "^3.2"
   },
   "authors": [
     {
       "name": "Joshua Woodward",
       "email": "joshua.woodward@zoom.us"
     }
-  ]
+  ],
+  "require-dev": {
+    "phpunit/phpunit": "^7"
+  },
+  "autoload": {
+    "psr-4": {
+      "Zoom\\": "src/"
+    }
+  }
 }
