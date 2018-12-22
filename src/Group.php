@@ -18,8 +18,7 @@ class Group extends ZoomObject
      */
     public function listGroups()
     {
-        $response = $this->client->get($this->baseEndpoint());
-        return $this->transformResponse($response);
+        return $this->getObjects();
     }
 
     /**
@@ -28,8 +27,6 @@ class Group extends ZoomObject
      */
     public function retrieveGroup(string $groupId)
     {
-        $endpoint = sprintf("%s/%s", $this->baseEndpoint(), $groupId);
-        $response = $this->client->get($endpoint);
-        return $this->transformResponse($response);
+        return $this->getObjectById($groupId);
     }
 }

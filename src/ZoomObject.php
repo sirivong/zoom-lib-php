@@ -71,4 +71,45 @@ abstract class ZoomObject
         }
         return $response;
     }
+
+    /**
+     * @param int $pageNumber
+     * @param int $pageSize
+     * @param array $query
+     * @return ResponseInterface|object
+     */
+    public function getObjects(int $pageNumber = 1, int $pageSize = 30, $query = [])
+    {
+        $options = [
+            'query' => [
+                'page_number' => $pageNumber,
+                'page_size' => $pageSize,
+            ]
+        ];
+        if (!empty($query)) {
+            $options = array_merge_recursive($options, [
+                'query' => $query
+            ]);
+        }
+        $response = $this->client->get($this->baseEndpoint(), $options);
+        return $this->transformResponse($response);
+    }
+
+    /**
+     * @param string $objectId
+     * @param array $query
+     * @return ResponseInterface|object
+     */
+    public function getObjectById(string $objectId, $query = [])
+    {
+        $options = [];
+        if (!empty($query)) {
+            $options = [
+                'query' => $query
+            ];
+        }
+        $endpoint = sprintf("%s/%s", $this->baseEndpoint(), $objectId);
+        $response = $this->client->get($endpoint, $options);
+        return $this->transformResponse($response);
+    }
 }

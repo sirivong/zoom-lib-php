@@ -14,42 +14,26 @@ class User extends ZoomObject
     protected $baseEndpointUri = 'users';
 
     /**
-     * @param string|null $status
      * @param int $pageNumber
      * @param int $pageSize
+     * @param string|null $status
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function listUsers(string $status = null, int $pageNumber = 1, int $pageSize = 30)
+    public function getUsers(int $pageNumber = 1, int $pageSize = 30, $status = null)
     {
-        $options = [
-            'query' => [
-                'page_number' => $pageNumber,
-                'page_size' => $pageSize,
-            ]
-        ];
-        if (!empty($status)) {
-            $option['query']['status'] = $status;
-        }
-        $response = $this->client->get($this->baseEndpoint(), $options);
-        return $this->transformResponse($response);
+        $options = !empty($status) ? ['status' => $status] : [];
+        return $this->getObjects($pageNumber, $pageSize, $options);
     }
 
     /**
-     * @param string $userId
+     * @param string $userIdOrEmail
      * @param null $loginType
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function retrieveUser(string $userId, $loginType = null)
+    public function getUserByIdOrEmail(string $userIdOrEmail, $loginType = null)
     {
-        $endpoint = sprintf("%s/%s", $this->baseEndpoint(), $userId);
-        $options = [];
-        if (!empty($loginType)) {
-            $options['query'] = [
-                'login_type' => $loginType
-            ];
-        }
-        $response = $this->client->get($endpoint, $options);
-        return $this->transformResponse($response);
+        $options = !empty($loginType) ? ['login_type' => $loginType] : [];
+        return $this->getObjectById($userIdOrEmail, $options);
     }
 
     /**
@@ -72,12 +56,12 @@ class User extends ZoomObject
     }
 
     /**
-     * @param string $userId
+     * @param string $userIdOrEmail
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function retrieveSettings(string $userId)
+    public function getSettings(string $userIdOrEmail)
     {
-        $endpoint = sprintf("%s/%s/settings", $this->baseEndpoint(), $userId);
+        $endpoint = sprintf("%s/%s/settings", $this->baseEndpoint(), $userIdOrEmail);
         $response = $this->client->get($endpoint);
         return $this->transformResponse($response);
     }
