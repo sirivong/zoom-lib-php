@@ -5,6 +5,7 @@ namespace ZoomTest;
 
 use Zoom\Role;
 use Zoom\User;
+use Zoom\Group;
 use Zoom\Client;
 use Zoom\Account;
 
@@ -51,6 +52,14 @@ final class ClientTest extends BaseTest
         $this->assertInstanceOf(
             Role::class,
             $this->client->role
+        );
+    }
+
+    public function testCanCreateGroup(): void
+    {
+        $this->assertInstanceOf(
+            Group::class,
+            $this->client->group
         );
     }
 }

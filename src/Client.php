@@ -11,6 +11,7 @@ use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\Client as HttpClient;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Psr\Http\Message\RequestInterface;
+use Zoom\Exception\InvalidZoomObjectException;
 
 /**
  * Class Client
@@ -26,11 +27,12 @@ class Client
     /**
      * @var array
      */
-    protected $apiObjects = [
-        'account',
-        'meeting',
-        'role',
-        'user',
+    protected $zoomObjects = [
+        'account' => Account::class,
+        'group' => Group::class,
+        'meeting' => Meeting::class,
+        'role' => Role::class,
+        'user' => User::class,
     ];
 
     /**
@@ -73,17 +75,18 @@ class Client
     /**
      * @param string $name
      * @return ZoomObject|null
+     * @throws InvalidZoomObjectException
      */
     public function __get(string $name): ?ZoomObject
     {
-        $apiObject = null;
-        if (in_array(strtolower($name), $this->apiObjects)) {
-            $klazz = __NAMESPACE__ . '\\' . ucfirst($name);
-            if (class_exists($klazz)) {
-                $apiObject = new $klazz($this->client);
-            }
+        $zoomObject = null;
+        if (in_array(strtolower($name), array_keys($this->zoomObjects))) {
+            $klazz = $this->zoomObjects[$name];
+            $zoomObject = new $klazz($this->client);
+        } else {
+            throw new InvalidZoomObjectException("ZoomObject \"${name}\" does not exist.");
         }
-        return $apiObject;
+        return $zoomObject;
     }
 
     /**

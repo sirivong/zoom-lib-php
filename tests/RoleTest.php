@@ -9,6 +9,18 @@ namespace ZoomTest;
 final class RoleTest extends BaseTest
 {
     /**
+     * @throws \Exception
+     */
+    public function setUp()
+    {
+        parent::setUp();
+        $this->roleId = (int)getenv('ZOOM_TEST_ROLE_ID') ?: 0;
+        if (!$this->roleId) {
+            throw new \Exception('ZOOM_TEST_ROLE_ID environment variable is not set.');
+        }
+    }
+
+    /**
      *
      */
     public function testCanListRoles(): void
@@ -22,8 +34,7 @@ final class RoleTest extends BaseTest
      */
     public function testCanListMembers(): void
     {
-        $roleId = getenv('ZOOM_TEST_ROLE_ID') ?: 1;
-        $response = $this->client->role->listMembers($roleId);
+        $response = $this->client->role->listMembers($this->roleId);
         $this->assertGreaterThan(0, count($response->members));
     }
 }

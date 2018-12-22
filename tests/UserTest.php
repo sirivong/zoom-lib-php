@@ -21,7 +21,7 @@ final class UserTest extends BaseTest
         parent::setUp();
         $this->userEmail = getenv('ZOOM_TEST_EMAIL') ?: '';
         if (empty($this->userEmail)) {
-            throw new \Exception('ZOOM_TEST_EMAIL environment variables is not set.');
+            throw new \Exception('ZOOM_TEST_EMAIL environment variable is not set.');
         }
     }
 
