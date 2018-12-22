@@ -15,18 +15,20 @@ class User extends ZoomObject
 
     /**
      * @param string|null $status
-     * @param int $pageSize
      * @param int $pageNumber
+     * @param int $pageSize
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function listUsers(string $status = null, int $pageSize = 50, int $pageNumber = 1)
+    public function listUsers(string $status = null, int $pageNumber = 1, int $pageSize = 30)
     {
         $options = [
-            'page_size' => $pageSize,
-            'page_number' => $pageNumber,
+            'query' => [
+                'page_number' => $pageNumber,
+                'page_size' => $pageSize,
+            ]
         ];
         if (!empty($status)) {
-            $options['status'] = $status;
+            $option['query']['status'] = $status;
         }
         $response = $this->client->get($this->baseEndpoint(), $options);
         return $this->transformResponse($response);
@@ -42,7 +44,9 @@ class User extends ZoomObject
         $endpoint = sprintf("%s/%s", $this->baseEndpoint(), $userId);
         $options = [];
         if (!empty($loginType)) {
-            $options['login_type'] = $loginType;
+            $options['query'] = [
+                'login_type' => $loginType
+            ];
         }
         $response = $this->client->get($endpoint, $options);
         return $this->transformResponse($response);
@@ -58,8 +62,37 @@ class User extends ZoomObject
     {
         $endpoint = sprintf("%s/%s/meetings", $this->baseEndpoint(), $userId);
         $options = [
-            'page_number' => $pageNumber,
-            'page_size' => $pageSize,
+            'query' => [
+                'page_number' => $pageNumber,
+                'page_size' => $pageSize,
+            ]
+        ];
+        $response = $this->client->get($endpoint, $options);
+        return $this->transformResponse($response);
+    }
+
+    /**
+     * @param string $userId
+     * @return \Psr\Http\Message\ResponseInterface|object
+     */
+    public function retrieveSettings(string $userId)
+    {
+        $endpoint = sprintf("%s/%s/settings", $this->baseEndpoint(), $userId);
+        $response = $this->client->get($endpoint);
+        return $this->transformResponse($response);
+    }
+
+    /**
+     * @param string $email
+     * @return object|\Psr\Http\Message\ResponseInterface|null
+     */
+    public function checkEmail(string $email)
+    {
+        $endpoint = sprintf("%s/email", $this->baseEndpoint());
+        $options = [
+            'query' => [
+                'email' => $email
+            ]
         ];
         $response = $this->client->get($endpoint, $options);
         return $this->transformResponse($response);

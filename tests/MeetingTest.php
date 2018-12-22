@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+namespace ZoomTest;
+
 use GuzzleHttp\Exception\ClientException;
 
 /**
@@ -14,12 +16,15 @@ final class MeetingTest extends BaseTest
     protected $meetingId;
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function setUp()
     {
         parent::setUp();
-        $this->meetingId = (int)getenv('ZOOM_MEETING_ID') ?: 0;
+        $this->meetingId = (int)getenv('ZOOM_TEST_MEETING_ID') ?: 0;
+        if (!$this->meetingId) {
+            throw new \Exception('ZOOM_TEST_MEETING_ID environment variable is not set.');
+        }
     }
 
     /**

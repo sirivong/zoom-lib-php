@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-use PHPUnit\Framework\TestCase;
+namespace ZoomTest;
 
 use Zoom\Client;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class BaseTest
@@ -16,7 +17,7 @@ abstract class BaseTest extends TestCase
     protected $client = null;
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function setUp()
     {
@@ -25,7 +26,7 @@ abstract class BaseTest extends TestCase
         $apiSecret = getenv('ZOOM_API_SECRET') ?: '';
 
         if (empty($apiKey) || empty($apiSecret)) {
-            throw new Exception('ZOOM_API_KEY or ZOOM_API_SECRET environment variables is net set.');
+            throw new \Exception('ZOOM_API_KEY or ZOOM_API_SECRET environment variables is net set.');
         }
 
         $options = [];
