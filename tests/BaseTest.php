@@ -12,6 +12,16 @@ use PHPUnit\Framework\TestCase;
 abstract class BaseTest extends TestCase
 {
     /**
+     * @var
+     */
+    protected $apiKey;
+
+    /**
+     * @var
+     */
+    protected $apiSecret;
+
+    /**
      * @var null
      */
     protected $client = null;
@@ -22,14 +32,14 @@ abstract class BaseTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $apiKey = getenv('ZOOM_API_KEY') ?: '';
-        $apiSecret = getenv('ZOOM_API_SECRET') ?: '';
+        $this->apiKey = getenv('ZOOM_API_KEY') ?: '';
+        $this->apiSecret = getenv('ZOOM_API_SECRET') ?: '';
 
-        if (empty($apiKey) || empty($apiSecret)) {
+        if (empty($this->apiKey) || empty($this->apiSecret)) {
             throw new \Exception('ZOOM_API_KEY or ZOOM_API_SECRET environment variables is net set.');
         }
 
         $options = [];
-        $this->client = new Client($apiKey, $apiSecret, $options);
+        $this->client = new Client($this->apiKey, $this->apiSecret, $options);
     }
 }

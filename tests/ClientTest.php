@@ -39,6 +39,18 @@ final class ClientTest extends BaseTest
     /**
      *
      */
+    public function testCanCreateAccountStatically(): void
+    {
+        $this->assertInstanceOf(
+            Account::class,
+            Client::getAccount($this->apiKey, $this->apiSecret)
+        );
+    }
+
+
+    /**
+     *
+     */
     public function testCanCreateUser(): void
     {
         $this->assertInstanceOf(

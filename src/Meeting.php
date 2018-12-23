@@ -14,7 +14,7 @@ class Meeting extends ZoomObject
      * @param int $pageSize
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function listRegistrants(int $meetingId, int $pageNumber = 1, int $pageSize = 30)
+    public function getRegistrants(int $meetingId, int $pageNumber = 1, int $pageSize = 30)
     {
         $endpoint = sprintf("%s/%s/registrants", $this->baseEndpoint(), $meetingId);
         $options = [

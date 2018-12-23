@@ -27,7 +27,12 @@ class Client
     /**
      * @var array
      */
-    protected $zoomObjects = [
+    private static $clients = [];
+
+    /**
+     * @var array
+     */
+    private static $zoomObjects = [
         'account' => Account::class,
         'group' => Group::class,
         'meeting' => Meeting::class,
@@ -48,7 +53,7 @@ class Client
     /**
      * @var
      */
-    protected $client;
+    protected $httpClient;
 
     /**
      * @var array
@@ -69,6 +74,9 @@ class Client
 
         $this->initialize();
 
+        $tag = self::tag($apiKey . $apiSecret);
+        self::$clients[$tag] = $this;
+
         return $this;
     }
 
@@ -81,13 +89,60 @@ class Client
     {
         $zoomObject = null;
         $name = strtolower($name);
-        if (in_array($name, array_keys($this->zoomObjects))) {
-            $klazz = $this->zoomObjects[$name];
-            $zoomObject = new $klazz($this->client);
+        if (in_array($name, array_keys(self::$zoomObjects))) {
+            $klazz = self::$zoomObjects[$name];
+            $zoomObject = new $klazz($this->httpClient);
         } else {
             throw new InvalidZoomObjectException("ZoomObject \"${name}\" does not exist.");
         }
         return $zoomObject;
+    }
+
+    /**
+     * @param $str
+     * @return string
+     */
+    public static function tag($str): string
+    {
+        return sha1($str);
+    }
+
+    /**
+     * @param string $apiKey
+     * @param string $apiSecret
+     * @param array $config
+     * @return Client
+     */
+    private static function getClient(string $apiKey, string $apiSecret, $config = []): Client
+    {
+        $tag = self::tag($apiKey . $apiSecret);
+        if (array_key_exists($tag, self::$clients)) {
+            return self::$clients[$tag];
+        }
+
+        $klazz = __CLASS__;
+        $klazz = new $klazz($apiKey, $apiSecret, $config);
+        self::$clients[$tag] = $klazz;
+
+        return $klazz;
+    }
+
+    /**
+     * @param $name
+     * @param $arguments
+     * @return ZoomObject
+     * @throws InvalidZoomObjectException
+     */
+    public static function __callStatic($name, $arguments): ZoomObject
+    {
+        $name = strtolower(preg_replace('/^get/', '', $name));
+        if (in_array($name, array_keys(self::$zoomObjects))) {
+            list($apiKey, $apiSecret) = $arguments;
+            $config = count($arguments) >= 3 ? $arguments[2] : null;
+            return self::getClient($apiKey, $apiSecret, $config)->$name;
+        } else {
+            throw new InvalidZoomObjectException("ZoomObject \"${name}\" does not exist.");
+        }
     }
 
     /**
@@ -115,7 +170,7 @@ class Client
         $stack->push(Middleware::mapRequest(function (RequestInterface $request) {
             return $request->withHeader('Authorization', 'Bearer ' . (string)$this->generateToken());
         }));
-        $this->client = new HttpClient(array_merge(
+        $this->httpClient = new HttpClient(array_merge(
             ['base_uri' => self::BASE_URI, 'handler' => $stack],
             $this->config
         ));

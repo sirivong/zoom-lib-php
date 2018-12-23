@@ -10,13 +10,19 @@ $apiKey = 'MY-API-KEY';
 $apiSecret = 'MY-API-SECRET';
 
 $client = new Client($apiKey, $apiSecret);
+$users = $client->user->getUsers();
 
-$zoomUser = $client->user;
-$users = $zoomUser->listUsers();
+$email = 'john.doe@gmail.com';
+$pageNumber = 2;
+$pageSize = 50;
+$meetings = $client->user->getMeetings($email, $pageNumber, $pageSize);
+
+$groups = Client::getGroup($apiKey, $apiSecret)
+    ->getGroups();
 
 $meetingId = 1234567890;
-$zoomMeeting = $client->meeting;
-$registrants = $zoomMeeting->listRegistrants($meetingId);
+$registrants = Client::getMeeting($apiKey, $apiSecret)
+    ->getRegistrants($meetingId);
 ```
 
 ## Support
