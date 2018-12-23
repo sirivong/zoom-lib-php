@@ -9,17 +9,11 @@ namespace Zoom;
 class Role extends ZoomObject
 {
     /**
-     * @var string
-     */
-    protected $baseEndpointUri = 'roles';
-
-    /**
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function listRoles()
+    public function getRoles()
     {
-        $response = $this->client->get($this->baseEndpoint());
-        return $this->transformResponse($response);
+        return $this->getObjects();
     }
 
     /**
@@ -28,14 +22,9 @@ class Role extends ZoomObject
      * @param int $pageSize
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function listMembers(int $roleId, int $pageNumber = 1, int $pageSize = 30)
+    public function getMembers(int $roleId, int $pageNumber = 1, int $pageSize = 30)
     {
         $endpoint = sprintf("%s/%s/members", $this->baseEndpoint(), $roleId);
-        $options = [
-            'page_number' => $pageNumber,
-            'page_size' => $pageSize,
-        ];
-        $response = $this->client->get($endpoint, $options);
-        return $this->transformResponse($response);
+        return $this->getObjects($pageNumber, $pageSize, null, $endpoint);
     }
 }

@@ -9,14 +9,9 @@ namespace Zoom;
 class Group extends ZoomObject
 {
     /**
-     * @var string
-     */
-    protected $baseEndpointUri = 'groups';
-
-    /**
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function listGroups()
+    public function getGroups()
     {
         return $this->getObjects();
     }
@@ -25,7 +20,7 @@ class Group extends ZoomObject
      * @param string $groupId
      * @return object|\Psr\Http\Message\ResponseInterface|null
      */
-    public function retrieveGroup(string $groupId)
+    public function getGroup(string $groupId)
     {
         return $this->getObjectById($groupId);
     }

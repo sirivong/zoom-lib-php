@@ -9,11 +9,6 @@ namespace Zoom;
 class Meeting extends ZoomObject
 {
     /**
-     * @var string
-     */
-    protected $baseEndpointUri = 'meetings';
-
-    /**
      * @param int $meetingId
      * @param int $pageNumber
      * @param int $pageSize

@@ -19,7 +19,7 @@ abstract class ZoomObject
     /**
      * @var string
      */
-    protected $baseEndpointUri = '';
+    protected $baseEndpointUri;
 
     /**
      * @var Client|null
@@ -46,7 +46,16 @@ abstract class ZoomObject
      */
     protected function baseEndpoint(string $baseEndpointUri = null): string
     {
-        $baseEndpointUri = $baseEndpointUri ?: $this->baseEndpointUri;
+        if (empty($baseEndpointUri)) {
+            if (!empty($this->baseEndpointUri)) {
+                $baseEndpointUri = $this->baseEndpointUri;
+            } else {
+                try {
+                    $baseEndpointUri = strtolower((new \ReflectionClass($this))->getShortName()) . 's';
+                } catch (\ReflectionException $re) {
+                }
+            }
+        }
         return sprintf("/%s/%s", self::VERSION, $baseEndpointUri);
     }
 
@@ -76,9 +85,10 @@ abstract class ZoomObject
      * @param int $pageNumber
      * @param int $pageSize
      * @param array $query
-     * @return ResponseInterface|object
+     * @param null $endpoint
+     * @return object|ResponseInterface|null
      */
-    public function getObjects(int $pageNumber = 1, int $pageSize = 30, $query = [])
+    public function getObjects(int $pageNumber = 1, int $pageSize = 30, $query = [], $endpoint = null)
     {
         $options = [
             'query' => [
@@ -91,14 +101,15 @@ abstract class ZoomObject
                 'query' => $query
             ]);
         }
-        $response = $this->client->get($this->baseEndpoint(), $options);
+        $endpoint = $endpoint ?: $this->baseEndpoint();
+        $response = $this->client->get($endpoint, $options);
         return $this->transformResponse($response);
     }
 
     /**
      * @param string $objectId
      * @param array $query
-     * @return ResponseInterface|object
+     * @return object|ResponseInterface|null
      */
     public function getObjectById(string $objectId, $query = [])
     {

@@ -9,11 +9,6 @@ namespace Zoom;
 class User extends ZoomObject
 {
     /**
-     * @var string
-     */
-    protected $baseEndpointUri = 'users';
-
-    /**
      * @param int $pageNumber
      * @param int $pageSize
      * @param string|null $status
@@ -37,22 +32,27 @@ class User extends ZoomObject
     }
 
     /**
-     * @param string $userId
+     * @param string $userIdOrEmail
      * @param int $pageNumber
      * @param int $pageSize
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function listMeetings(string $userId, $pageNumber = 1, $pageSize = 30)
+    public function getMeetings(string $userIdOrEmail, $pageNumber = 1, $pageSize = 30)
     {
-        $endpoint = sprintf("%s/%s/meetings", $this->baseEndpoint(), $userId);
-        $options = [
-            'query' => [
-                'page_number' => $pageNumber,
-                'page_size' => $pageSize,
-            ]
-        ];
-        $response = $this->client->get($endpoint, $options);
-        return $this->transformResponse($response);
+        $endpoint = sprintf("%s/%s/meetings", $this->baseEndpoint(), $userIdOrEmail);
+        return $this->getObjects($pageNumber, $pageSize, null, $endpoint);
+    }
+
+    /**
+     * @param string $userIdOrEmail
+     * @param int $pageNumber
+     * @param int $pageSize
+     * @return \Psr\Http\Message\ResponseInterface|object
+     */
+    public function getWebinars(string $userIdOrEmail, $pageNumber = 1, $pageSize = 30)
+    {
+        $endpoint = sprintf("%s/%s/webinars", $this->baseEndpoint(), $userIdOrEmail);
+        return $this->getObjects($pageNumber, $pageSize, null, $endpoint);
     }
 
     /**

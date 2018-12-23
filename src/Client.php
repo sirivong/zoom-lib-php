@@ -80,7 +80,8 @@ class Client
     public function __get(string $name): ?ZoomObject
     {
         $zoomObject = null;
-        if (in_array(strtolower($name), array_keys($this->zoomObjects))) {
+        $name = strtolower($name);
+        if (in_array($name, array_keys($this->zoomObjects))) {
             $klazz = $this->zoomObjects[$name];
             $zoomObject = new $klazz($this->client);
         } else {

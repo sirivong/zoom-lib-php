@@ -9,11 +9,6 @@ namespace Zoom;
 class Account extends ZoomObject
 {
     /**
-     * @var string
-     */
-    protected $baseEndpointUri = 'accounts';
-
-    /**
      * @return \Psr\Http\Message\ResponseInterface|object
      */
     public function details()

@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace ZoomTest;
 
+use GuzzleHttp\Exception\ClientException;
+
 /**
  * Class UserTest
  */
@@ -28,7 +30,7 @@ final class UserTest extends BaseTest
     /**
      *
      */
-    public function testCanListUsers(): void
+    public function testCanGetUsers(): void
     {
         $response = $this->client->user->getObjects();
         $this->assertGreaterThan(0, count($response->users));
@@ -43,7 +45,7 @@ final class UserTest extends BaseTest
     /**
      *
      */
-    public function testCanRetrieveUser(): void
+    public function testCanGetUser(): void
     {
         $response = $this->client->user->getObjectById($this->userEmail);
         $this->assertEquals($this->userEmail, $response->email);
@@ -52,10 +54,22 @@ final class UserTest extends BaseTest
     /**
      *
      */
-    public function testCanListMeetings(): void
+    public function testCanGetMeetings(): void
     {
-        $response = $this->client->user->listMeetings($this->userEmail);
+        $response = $this->client->user->getMeetings($this->userEmail);
         $this->assertNotEmpty($response);
+    }
+
+    /**
+     *
+     */
+    public function testCanGetWebinars(): void
+    {
+        try {
+            $response = $this->client->user->getWebinars($this->userEmail);
+            $this->assertNotEmpty($response);
+        } catch (ClientException $ce) {
+        }
     }
 
     /**
