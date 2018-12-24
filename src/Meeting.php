@@ -12,16 +12,23 @@ class Meeting extends ZoomObject
      * @param int $meetingId
      * @param int $pageNumber
      * @param int $pageSize
-     * @return \Psr\Http\Message\ResponseInterface|object
+     * @param null $occurrenceId
+     * @param null $status
+     * @return object|\Psr\Http\Message\ResponseInterface|null
      */
-    public function getRegistrants(int $meetingId, int $pageNumber = 1, int $pageSize = 30)
+    public function getRegistrants(int $meetingId, int $pageNumber = 1, int $pageSize = 30, $occurrenceId = null, $status = null)
     {
         $endpoint = sprintf("%s/%s/registrants", $this->baseEndpoint(), $meetingId);
-        $options = [
+        $query = [
             'page_number' => $pageNumber,
             'page_size' => $pageSize,
         ];
-        $response = $this->client->get($endpoint, $options);
-        return $this->transformResponse($response);
+        if (!empty($occurrenceId)) {
+            $query['occurrence_id'] = $occurrenceId;
+        }
+        if (!empty($status)) {
+            $query['status'] = $status;
+        }
+        return $this->getObjects($endpoint, $query);
     }
 }

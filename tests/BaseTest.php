@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace ZoomTest;
 
-use Zoom\Client;
+use Zoom\Zoom;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -40,6 +40,6 @@ abstract class BaseTest extends TestCase
         }
 
         $options = [];
-        $this->client = new Client($this->apiKey, $this->apiSecret, $options);
+        $this->client = new Zoom($this->apiKey, $this->apiSecret, $options);
     }
 }

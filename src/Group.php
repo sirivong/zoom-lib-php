@@ -11,7 +11,7 @@ class Group extends ZoomObject
     /**
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function getGroups()
+    public function groups()
     {
         return $this->getObjects();
     }
@@ -20,8 +20,8 @@ class Group extends ZoomObject
      * @param string $groupId
      * @return object|\Psr\Http\Message\ResponseInterface|null
      */
-    public function getGroup(string $groupId)
+    public function group(string $groupId)
     {
-        return $this->getObjectById($groupId);
+        return $this->getObject($groupId);
     }
 }

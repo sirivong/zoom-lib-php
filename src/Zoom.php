@@ -14,10 +14,10 @@ use Psr\Http\Message\RequestInterface;
 use Zoom\Exception\InvalidZoomObjectException;
 
 /**
- * Class Client
+ * Class Zoom
  * @package Zoom
  */
-class Client
+class Zoom
 {
     /**
      * Base URI
@@ -61,7 +61,7 @@ class Client
     protected $config;
 
     /**
-     * Client constructor.
+     * Zoom constructor.
      * @param string $apiKey
      * @param string $apiSecret
      * @param array $config
@@ -74,8 +74,8 @@ class Client
 
         $this->initialize();
 
-        $tag = self::tag($apiKey . $apiSecret);
-        self::$clients[$tag] = $this;
+        $hashKey = self::hashKey($apiKey, $apiSecret);
+        self::$clients[$hashKey] = $this;
 
         return $this;
     }
@@ -87,42 +87,42 @@ class Client
      */
     public function __get(string $name): ?ZoomObject
     {
-        $zoomObject = null;
         $name = strtolower($name);
         if (in_array($name, array_keys(self::$zoomObjects))) {
             $klazz = self::$zoomObjects[$name];
-            $zoomObject = new $klazz($this->httpClient);
-        } else {
-            throw new InvalidZoomObjectException("ZoomObject \"${name}\" does not exist.");
+            return new $klazz($this->httpClient);
         }
-        return $zoomObject;
+        throw new InvalidZoomObjectException("ZoomObject \"${name}\" does not exist.");
     }
 
     /**
-     * @param $str
+     * @param string $apiKey
+     * @param string $apiSecret
      * @return string
      */
-    public static function tag($str): string
+    public static function hashKey(string $apiKey, string $apiSecret): string
     {
-        return sha1($str);
+        // $hashKey = sha1($str);
+        $hashKey = $apiKey . $apiSecret;
+        return $hashKey;
     }
 
     /**
      * @param string $apiKey
      * @param string $apiSecret
      * @param array $config
-     * @return Client
+     * @return Zoom
      */
-    private static function getClient(string $apiKey, string $apiSecret, $config = []): Client
+    private static function getClient(string $apiKey, string $apiSecret, $config = []): Zoom
     {
-        $tag = self::tag($apiKey . $apiSecret);
-        if (array_key_exists($tag, self::$clients)) {
-            return self::$clients[$tag];
+        $hashKey = self::hashKey($apiKey, $apiSecret);
+        if (array_key_exists($hashKey, self::$clients)) {
+            return self::$clients[$hashKey];
         }
 
         $klazz = __CLASS__;
         $klazz = new $klazz($apiKey, $apiSecret, $config);
-        self::$clients[$tag] = $klazz;
+        self::$clients[$hashKey] = $klazz;
 
         return $klazz;
     }
@@ -135,14 +135,13 @@ class Client
      */
     public static function __callStatic($name, $arguments): ZoomObject
     {
-        $name = strtolower(preg_replace('/^get/', '', $name));
+        $name = preg_replace('/^get/', '', strtolower($name));
         if (in_array($name, array_keys(self::$zoomObjects))) {
             list($apiKey, $apiSecret) = $arguments;
             $config = count($arguments) >= 3 ? $arguments[2] : null;
             return self::getClient($apiKey, $apiSecret, $config)->$name;
-        } else {
-            throw new InvalidZoomObjectException("ZoomObject \"${name}\" does not exist.");
         }
+        throw new InvalidZoomObjectException("ZoomObject \"${name}\" does not exist.");
     }
 
     /**
@@ -168,7 +167,9 @@ class Client
     {
         $stack = HandlerStack::create(new CurlHandler());
         $stack->push(Middleware::mapRequest(function (RequestInterface $request) {
-            return $request->withHeader('Authorization', 'Bearer ' . (string)$this->generateToken());
+            return $request->withHeader('Authorization', 'Bearer ' . (string)$this->generateToken())
+                ->withHeader('Content-Type', 'application/json')
+                ->withHeader('Accept', 'application/json');
         }));
         $this->httpClient = new HttpClient(array_merge(
             ['base_uri' => self::BASE_URI, 'handler' => $stack],

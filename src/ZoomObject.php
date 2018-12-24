@@ -2,7 +2,7 @@
 
 namespace Zoom;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\Client as HttpClient;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -19,10 +19,10 @@ abstract class ZoomObject
     /**
      * @var string
      */
-    protected $baseEndpointUri;
+    protected $baseEndpoint;
 
     /**
-     * @var Client|null
+     * @var Zoom|null
      */
     protected $client = null;
 
@@ -33,30 +33,30 @@ abstract class ZoomObject
 
     /**
      * ZoomObject constructor.
-     * @param Client|null $client
+     * @param Zoom|null $client
      */
-    public function __construct(Client $client = null)
+    public function __construct(HttpClient $httpClient)
     {
-        $this->client = $client;
+        $this->httpClient = $httpClient;
     }
 
     /**
-     * @param string|null $baseEndpointUri
+     * @param string|null $baseEndpoint
      * @return string
      */
-    protected function baseEndpoint(string $baseEndpointUri = null): string
+    protected function baseEndpoint(string $baseEndpoint = null): string
     {
-        if (empty($baseEndpointUri)) {
-            if (!empty($this->baseEndpointUri)) {
-                $baseEndpointUri = $this->baseEndpointUri;
+        if (empty($baseEndpoint)) {
+            if (!empty($this->baseEndpoint)) {
+                $baseEndpoint = $this->baseEndpoint;
             } else {
                 try {
-                    $baseEndpointUri = strtolower((new \ReflectionClass($this))->getShortName()) . 's';
+                    $baseEndpoint = strtolower((new \ReflectionClass($this))->getShortName()) . 's';
                 } catch (\ReflectionException $re) {
                 }
             }
         }
-        return sprintf("/%s/%s", self::VERSION, $baseEndpointUri);
+        return sprintf("/%s/%s", self::VERSION, $baseEndpoint);
     }
 
     /**
@@ -82,27 +82,17 @@ abstract class ZoomObject
     }
 
     /**
-     * @param int $pageNumber
-     * @param int $pageSize
      * @param array $query
-     * @param null $endpoint
+     * @param string|null $endpoint
      * @return object|ResponseInterface|null
      */
-    public function getObjects(int $pageNumber = 1, int $pageSize = 30, $query = [], $endpoint = null)
+    protected function getObjects(string $endpoint = null, array $query = [])
     {
-        $options = [
-            'query' => [
-                'page_number' => $pageNumber,
-                'page_size' => $pageSize,
-            ]
+        $compoundedQuery = [
+            'query' => $this->buildQuery($query),
         ];
-        if (!empty($query)) {
-            $options = array_merge_recursive($options, [
-                'query' => $query
-            ]);
-        }
         $endpoint = $endpoint ?: $this->baseEndpoint();
-        $response = $this->client->get($endpoint, $options);
+        $response = $this->httpClient->get($endpoint, $compoundedQuery);
         return $this->transformResponse($response);
     }
 
@@ -111,16 +101,32 @@ abstract class ZoomObject
      * @param array $query
      * @return object|ResponseInterface|null
      */
-    public function getObjectById(string $objectId, $query = [])
+    protected function getObject(string $objectId, $query = [])
     {
-        $options = [];
+        $compoundedQuery = [];
         if (!empty($query)) {
-            $options = [
-                'query' => $query
-            ];
+            $compoundedQuery = ['query' => $query];
         }
         $endpoint = sprintf("%s/%s", $this->baseEndpoint(), $objectId);
-        $response = $this->client->get($endpoint, $options);
+        $response = $this->httpClient->get($endpoint, $compoundedQuery);
         return $this->transformResponse($response);
+    }
+
+    /**
+     * @param array $query
+     * @param int $pageNumber
+     * @param int $pageSize
+     * @return array
+     */
+    protected function buildQuery($query = [], int $pageNumber = 1, int $pageSize = 30): array
+    {
+        $compoundedQuery = [
+            'page_number' => $pageNumber,
+            'page_size' => $pageSize,
+        ];
+        if (!empty($query)) {
+            $compoundedQuery = array_merge($compoundedQuery, $query);
+        }
+        return $compoundedQuery;
     }
 }

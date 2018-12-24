@@ -4,24 +4,24 @@ Zoom PHP Library
 ## Usage
 
 ```
-use Zoom\Client;
+use Zoom\Zoom;
 
 $apiKey = 'MY-API-KEY';
 $apiSecret = 'MY-API-SECRET';
 
-$client = new Client($apiKey, $apiSecret);
-$users = $client->user->getUsers();
+$zoom = new Zoom($apiKey, $apiSecret);
+$users = $zoom->user->getUsers();
 
 $email = 'john.doe@gmail.com';
 $pageNumber = 2;
 $pageSize = 50;
-$meetings = $client->user->getMeetings($email, $pageNumber, $pageSize);
+$meetings = $zoom->user->getMeetings($email, $pageNumber, $pageSize);
 
-$groups = Client::getGroup($apiKey, $apiSecret)
+$groups = Zoom::getGroup($apiKey, $apiSecret)
     ->getGroups();
 
 $meetingId = 1234567890;
-$registrants = Client::getMeeting($apiKey, $apiSecret)
+$registrants = Zoom::getMeeting($apiKey, $apiSecret)
     ->getRegistrants($meetingId);
 ```
 

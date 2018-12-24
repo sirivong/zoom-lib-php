@@ -13,7 +13,7 @@ class Account extends ZoomObject
      */
     public function details()
     {
-        $response = $this->client->get($this->baseEndpoint());
+        $response = $this->httpClient->get($this->baseEndpoint());
         return $this->transformResponse($response);
     }
 }

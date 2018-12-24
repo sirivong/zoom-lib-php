@@ -6,7 +6,7 @@ namespace ZoomTest;
 use Zoom\Role;
 use Zoom\User;
 use Zoom\Group;
-use Zoom\Client;
+use Zoom\Zoom;
 use Zoom\Account;
 
 /**
@@ -20,7 +20,7 @@ final class ClientTest extends BaseTest
     public function testCanCreateClient(): void
     {
         $this->assertInstanceOf(
-            Client::class,
+            Zoom::class,
             $this->client
         );
     }
@@ -43,7 +43,7 @@ final class ClientTest extends BaseTest
     {
         $this->assertInstanceOf(
             Account::class,
-            Client::getAccount($this->apiKey, $this->apiSecret)
+            Zoom::getAccount($this->apiKey, $this->apiSecret)
         );
     }
 

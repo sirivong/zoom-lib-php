@@ -32,12 +32,12 @@ final class UserTest extends BaseTest
      */
     public function testCanGetUsers(): void
     {
-        $response = $this->client->user->getObjects();
+        $response = $this->client->user->getUsers();
         $this->assertGreaterThan(0, count($response->users));
 
         $pageNumber = 2;
         $pageSize = 1;
-        $response = $this->client->user->getObjects($pageNumber, $pageSize);
+        $response = $this->client->user->getUsers($pageNumber, $pageSize);
         $this->assertEquals($pageNumber, $response->page_number);
         $this->assertEquals($pageSize, $response->page_size);
     }
@@ -47,7 +47,7 @@ final class UserTest extends BaseTest
      */
     public function testCanGetUser(): void
     {
-        $response = $this->client->user->getObjectById($this->userEmail);
+        $response = $this->client->user->getUser($this->userEmail);
         $this->assertEquals($this->userEmail, $response->email);
     }
 

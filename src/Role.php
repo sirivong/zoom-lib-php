@@ -25,6 +25,7 @@ class Role extends ZoomObject
     public function getMembers(int $roleId, int $pageNumber = 1, int $pageSize = 30)
     {
         $endpoint = sprintf("%s/%s/members", $this->baseEndpoint(), $roleId);
-        return $this->getObjects($pageNumber, $pageSize, null, $endpoint);
+        $query = $this->buildQuery(null, $pageNumber, $pageSize);
+        return $this->getObjects($endpoint, $query);
     }
 }

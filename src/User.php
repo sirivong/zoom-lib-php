@@ -16,8 +16,9 @@ class User extends ZoomObject
      */
     public function getUsers(int $pageNumber = 1, int $pageSize = 30, $status = null)
     {
-        $options = !empty($status) ? ['status' => $status] : [];
-        return $this->getObjects($pageNumber, $pageSize, $options);
+        $query = !empty($status) ? ['status' => $status] : [];
+        $query = $this->buildQuery($query, $pageNumber, $pageSize);
+        return $this->getObjects(null, $query);
     }
 
     /**
@@ -25,10 +26,10 @@ class User extends ZoomObject
      * @param null $loginType
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function getUserByIdOrEmail(string $userIdOrEmail, $loginType = null)
+    public function getUser(string $userIdOrEmail, $loginType = null)
     {
-        $options = !empty($loginType) ? ['login_type' => $loginType] : [];
-        return $this->getObjectById($userIdOrEmail, $options);
+        $query = !empty($loginType) ? ['login_type' => $loginType] : [];
+        return $this->getObject($userIdOrEmail, $query);
     }
 
     /**
@@ -40,7 +41,8 @@ class User extends ZoomObject
     public function getMeetings(string $userIdOrEmail, $pageNumber = 1, $pageSize = 30)
     {
         $endpoint = sprintf("%s/%s/meetings", $this->baseEndpoint(), $userIdOrEmail);
-        return $this->getObjects($pageNumber, $pageSize, null, $endpoint);
+        $query = $this->buildQuery(null, $pageNumber, $pageSize);
+        return $this->getObjects($endpoint, $query);
     }
 
     /**
@@ -52,7 +54,8 @@ class User extends ZoomObject
     public function getWebinars(string $userIdOrEmail, $pageNumber = 1, $pageSize = 30)
     {
         $endpoint = sprintf("%s/%s/webinars", $this->baseEndpoint(), $userIdOrEmail);
-        return $this->getObjects($pageNumber, $pageSize, null, $endpoint);
+        $query = $this->buildQuery(null, $pageNumber, $pageSize);
+        return $this->getObjects($endpoint, $query);
     }
 
     /**
@@ -62,8 +65,7 @@ class User extends ZoomObject
     public function getSettings(string $userIdOrEmail)
     {
         $endpoint = sprintf("%s/%s/settings", $this->baseEndpoint(), $userIdOrEmail);
-        $response = $this->client->get($endpoint);
-        return $this->transformResponse($response);
+        return $this->getObjects($endpoint);
     }
 
     /**
@@ -73,12 +75,12 @@ class User extends ZoomObject
     public function checkEmail(string $email)
     {
         $endpoint = sprintf("%s/email", $this->baseEndpoint());
-        $options = [
+        $query = [
             'query' => [
                 'email' => $email
             ]
         ];
-        $response = $this->client->get($endpoint, $options);
+        $response = $this->httpClient->get($endpoint, $query);
         return $this->transformResponse($response);
     }
 }
