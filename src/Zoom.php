@@ -36,6 +36,7 @@ class Zoom
         'account' => Account::class,
         'group' => Group::class,
         'meeting' => Meeting::class,
+        'recording' => Recording::class,
         'role' => Role::class,
         'user' => User::class,
     ];
@@ -82,17 +83,17 @@ class Zoom
 
     /**
      * @param string $name
-     * @return ZoomObject|null
+     * @return Resource|null
      * @throws InvalidZoomObjectException
      */
-    public function __get(string $name): ?ZoomObject
+    public function __get(string $name): ?Resource
     {
         $name = strtolower($name);
         if (in_array($name, array_keys(self::$zoomObjects))) {
             $klazz = self::$zoomObjects[$name];
-            return new $klazz($this->httpClient);
+            return new $klazz($this->httpClient, $this);
         }
-        throw new InvalidZoomObjectException("ZoomObject \"${name}\" does not exist.");
+        throw new InvalidZoomObjectException("Resource \"${name}\" does not exist.");
     }
 
     /**
@@ -130,10 +131,10 @@ class Zoom
     /**
      * @param $name
      * @param $arguments
-     * @return ZoomObject
+     * @return Resource
      * @throws InvalidZoomObjectException
      */
-    public static function __callStatic($name, $arguments): ZoomObject
+    public static function __callStatic($name, $arguments): Resource
     {
         $name = preg_replace('/^get/', '', strtolower($name));
         if (in_array($name, array_keys(self::$zoomObjects))) {
@@ -141,7 +142,7 @@ class Zoom
             $config = count($arguments) >= 3 ? $arguments[2] : null;
             return self::getClient($apiKey, $apiSecret, $config)->$name;
         }
-        throw new InvalidZoomObjectException("ZoomObject \"${name}\" does not exist.");
+        throw new InvalidZoomObjectException("Resource \"${name}\" does not exist.");
     }
 
     /**

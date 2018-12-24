@@ -6,7 +6,7 @@ namespace Zoom;
  * Class Webinar
  * @package Zoom
  */
-class Webinar extends ZoomObject
+class Webinar extends Resource
 {
     /**
      * @param int $webinarId

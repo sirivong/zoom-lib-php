@@ -6,7 +6,7 @@ namespace Zoom;
  * Class User
  * @package Zoom
  */
-class User extends ZoomObject
+class User extends Resource
 {
     /**
      * @param int $pageNumber

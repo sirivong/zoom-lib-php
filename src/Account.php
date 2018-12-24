@@ -6,7 +6,7 @@ namespace Zoom;
  * Class Account
  * @package Zoom
  */
-class Account extends ZoomObject
+class Account extends Resource
 {
     /**
      * @return \Psr\Http\Message\ResponseInterface|object

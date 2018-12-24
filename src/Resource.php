@@ -6,10 +6,10 @@ use GuzzleHttp\Client as HttpClient;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Class ZoomObject
+ * Class Resource
  * @package Zoom
  */
-abstract class ZoomObject
+abstract class Resource
 {
     /**
      *
@@ -22,9 +22,14 @@ abstract class ZoomObject
     protected $baseEndpoint;
 
     /**
-     * @var Zoom|null
+     * @var HttpClient
      */
-    protected $client = null;
+    protected $httpClient;
+
+    /**
+     * @var Zoom
+     */
+    protected $zoom;
 
     /**
      * @var bool
@@ -32,12 +37,14 @@ abstract class ZoomObject
     protected $responseAsJson = true;
 
     /**
-     * ZoomObject constructor.
-     * @param Zoom|null $client
+     * Resource constructor.
+     * @param HttpClient $httpClient
+     * @param Zoom $zoom
      */
-    public function __construct(HttpClient $httpClient)
+    public function __construct(HttpClient $httpClient, Zoom $zoom)
     {
         $this->httpClient = $httpClient;
+        $this->zoom = $zoom;
     }
 
     /**
