@@ -11,7 +11,7 @@ use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\Client as HttpClient;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Psr\Http\Message\RequestInterface;
-use Zoom\Exception\InvalidZoomObjectException;
+use Zoom\Exceptions\InvalidResourceException;
 
 /**
  * Class Zoom
@@ -32,7 +32,7 @@ class Zoom
     /**
      * @var array
      */
-    private static $zoomObjects = [
+    private static $resources = [
         'account' => Account::class,
         'group' => Group::class,
         'meeting' => Meeting::class,
@@ -84,16 +84,16 @@ class Zoom
     /**
      * @param string $name
      * @return Resource|null
-     * @throws InvalidZoomObjectException
+     * @throws InvalidResourceException
      */
     public function __get(string $name): ?Resource
     {
         $name = strtolower($name);
-        if (in_array($name, array_keys(self::$zoomObjects))) {
-            $klazz = self::$zoomObjects[$name];
+        if (in_array($name, array_keys(self::$resources))) {
+            $klazz = self::$resources[$name];
             return new $klazz($this->httpClient, $this);
         }
-        throw new InvalidZoomObjectException("Resource \"${name}\" does not exist.");
+        throw new InvalidResourceException("Resource \"${name}\" does not exist.");
     }
 
     /**
@@ -132,17 +132,17 @@ class Zoom
      * @param $name
      * @param $arguments
      * @return Resource
-     * @throws InvalidZoomObjectException
+     * @throws InvalidResourceException
      */
     public static function __callStatic($name, $arguments): Resource
     {
-        $name = preg_replace('/^get/', '', strtolower($name));
-        if (in_array($name, array_keys(self::$zoomObjects))) {
+        $_name = strtolower($name);
+        if (in_array($_name, array_keys(self::$resources))) {
             list($apiKey, $apiSecret) = $arguments;
             $config = count($arguments) >= 3 ? $arguments[2] : null;
-            return self::getClient($apiKey, $apiSecret, $config)->$name;
+            return self::getClient($apiKey, $apiSecret, $config)->$_name;
         }
-        throw new InvalidZoomObjectException("Resource \"${name}\" does not exist.");
+        throw new InvalidResourceException("Resource \"${name}\" does not exist.");
     }
 
     /**

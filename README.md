@@ -17,11 +17,11 @@ $pageNumber = 2;
 $pageSize = 50;
 $meetings = $zoom->user->getMeetings($email, $pageNumber, $pageSize);
 
-$groups = Zoom::getGroup($apiKey, $apiSecret)
+$groups = Zoom::Group($apiKey, $apiSecret)
     ->getGroups();
 
 $meetingId = 1234567890;
-$registrants = Zoom::getMeeting($apiKey, $apiSecret)
+$registrants = Zoom::Meeting($apiKey, $apiSecret)
     ->getRegistrants($meetingId);
 ```
 

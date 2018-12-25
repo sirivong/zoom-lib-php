@@ -5,8 +5,8 @@ namespace ZoomTest;
 
 use Zoom\Role;
 use Zoom\User;
-use Zoom\Group;
 use Zoom\Zoom;
+use Zoom\Group;
 use Zoom\Account;
 
 /**
@@ -43,7 +43,7 @@ final class ClientTest extends BaseTest
     {
         $this->assertInstanceOf(
             Account::class,
-            Zoom::getAccount($this->apiKey, $this->apiSecret)
+            Zoom::Account($this->apiKey, $this->apiSecret)
         );
     }
 
