@@ -3,11 +3,15 @@ declare(strict_types=1);
 
 namespace ZoomTest;
 
-use Zoom\Role;
-use Zoom\User;
-use Zoom\Zoom;
-use Zoom\Group;
-use Zoom\Account;
+use Zoom\{
+    Account,
+    Billing,
+    Group,
+    Report,
+    Role,
+    User,
+    Zoom
+};
 
 /**
  * Class ClientTest
@@ -72,6 +76,22 @@ final class ClientTest extends BaseTest
         $this->assertInstanceOf(
             Group::class,
             $this->client->group
+        );
+    }
+
+    public function testCanCreateBilling(): void
+    {
+        $this->assertInstanceOf(
+            Billing::class,
+            $this->client->billing
+        );
+    }
+
+    public function testCanCreateReport(): void
+    {
+        $this->assertInstanceOf(
+            Report::class,
+            $this->client->report
         );
     }
 }

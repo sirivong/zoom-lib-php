@@ -110,11 +110,21 @@ abstract class Resource
      */
     protected function getObject(string $objectId, $query = [])
     {
+        $endpoint = sprintf("%s/%s", $this->baseEndpoint(), $objectId);
+        return $this->getObjectByEndpoint($endpoint, $query);
+    }
+
+    /**
+     * @param string $endpoint
+     * @param array $query
+     * @return object|ResponseInterface|null
+     */
+    protected function getObjectByEndpoint(string $endpoint, $query = [])
+    {
         $compoundedQuery = [];
         if (!empty($query)) {
             $compoundedQuery = ['query' => $query];
         }
-        $endpoint = sprintf("%s/%s", $this->baseEndpoint(), $objectId);
         $response = $this->httpClient->get($endpoint, $compoundedQuery);
         return $this->transformResponse($response);
     }
