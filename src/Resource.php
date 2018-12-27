@@ -48,6 +48,31 @@ abstract class Resource
     }
 
     /**
+     * @param $name
+     * @param $arguments
+     * @return object|ResponseInterface|null
+     * @throws \Exception
+     */
+    public function __call($name, $arguments)
+    {
+        $name = strtolower($name);
+        if (in_array($name, ['get', 'post', 'put', 'patch', 'delete'])) {
+            $endpoint = null;
+            $query = [];
+            if (count($arguments) > 0) {
+                $endpoint = $arguments[0];
+                if (count($arguments) > 1) {
+                    $query = $arguments[1];
+                }
+            } else {
+                throw new \Exception("Invalid endpoint for method: ${name}");
+            }
+            return $this->send($name, $endpoint, $query);
+        }
+        throw new \Exception("Invalid method: ${name}");
+    }
+
+    /**
      * @param string|null $baseEndpoint
      * @return string
      */
@@ -116,50 +141,6 @@ abstract class Resource
     }
 
     /**
-     * @param string $endpoint
-     * @param array $query
-     * @return object|ResponseInterface|null
-     * @throws \Exception
-     */
-    protected function get(string $endpoint, $query = [])
-    {
-        return $this->send('GET', $endpoint, $query);
-    }
-
-    /**
-     * @param string $endpoint
-     * @param array $query
-     * @return object|ResponseInterface|null
-     * @throws \Exception
-     */
-    protected function post(string $endpoint, $query = [])
-    {
-        return $this->send('POST', $endpoint, $query);
-    }
-
-    /**
-     * @param string $endpoint
-     * @param array $query
-     * @return object|ResponseInterface|null
-     * @throws \Exception
-     */
-    protected function patch(string $endpoint, $query = [])
-    {
-        return $this->send('PATCH', $endpoint, $query);
-    }
-
-    /**
-     * @param string $endpoint
-     * @param array $query
-     * @return object|ResponseInterface|null
-     * @throws \Exception
-     */
-    protected function delete(string $endpoint, $query = [])
-    {
-        return $this->send('DELETE', $endpoint, $query);
-    }
-
-    /**
      * @param string $method
      * @param string $endpoint
      * @param array $query
@@ -169,8 +150,7 @@ abstract class Resource
     protected function send(string $method, string $endpoint, $query = [])
     {
         $method = strtolower($method);
-        $acceptedMethods = ['get', 'post', 'patch', 'delete'];
-        if (!in_array($method, $acceptedMethods)) {
+        if (!in_array($method, ['get', 'post', 'put', 'patch', 'delete'])) {
             throw new \Exception("Invalid method: ${method}");
         }
         $compoundedQuery = [];

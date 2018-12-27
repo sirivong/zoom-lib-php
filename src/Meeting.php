@@ -32,11 +32,31 @@ class Meeting extends Resource
         return $this->getObjects($endpoint, $query);
     }
 
-    public function endMeeting(int $meetingId)
+    /**
+     * @param int $meetingId
+     * @return object|\Psr\Http\Message\ResponseInterface|null
+     * @throws \Exception
+     */
+    public function end(int $meetingId)
     {
         $endpoint = sprintf("%s/%s/status", $this->baseEndpoint(), $meetingId);
         $query = ['action' => 'end'];
-        return $this->delete($endpoint, $query);
+        return $this->put($endpoint, $query);
+    }
 
+    /**
+     * @param int $meetingId
+     * @param null $occurrenceId
+     * @return mixed|object|\Psr\Http\Message\ResponseInterface|null
+     * @throws \Exception
+     */
+    public function delete(int $meetingId, $occurrenceId = null)
+    {
+        $endpoint = sprintf("%s/%s", $this->baseEndpoint(), $meetingId);
+        $query = [];
+        if (!empty($occurrenceId)) {
+            $query = ['occurrence_id' => $occurrenceId];
+        }
+        return $this->delete($endpoint, $query);
     }
 }
