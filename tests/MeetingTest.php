@@ -33,7 +33,7 @@ final class MeetingTest extends BaseTest
     public function testCanGetRegistrants(): void
     {
         try {
-            $meeting = $this->client->meeting->getRegistrants($this->meetingId);
+            $meeting = $this->client->meeting->registrants($this->meetingId);
             $this->assertGreaterThan(0, count($meeting->registrants));
         } catch (ClientException $ce) {
         }

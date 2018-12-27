@@ -35,6 +35,7 @@ class Zoom
     private static $resources = [
         'account' => Account::class,
         'billing' => Billing::class,
+        'dashboard' => Dashboard::class,
         'group' => Group::class,
         'meeting' => Meeting::class,
         'recording' => Recording::class,

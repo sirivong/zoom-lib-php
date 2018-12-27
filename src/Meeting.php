@@ -16,7 +16,7 @@ class Meeting extends Resource
      * @param null $status
      * @return object|\Psr\Http\Message\ResponseInterface|null
      */
-    public function getRegistrants(int $meetingId, int $pageNumber = 1, int $pageSize = 30, $occurrenceId = null, $status = null)
+    public function registrants(int $meetingId, int $pageNumber = 1, int $pageSize = 30, $occurrenceId = null, $status = null)
     {
         $endpoint = sprintf("%s/%s/registrants", $this->baseEndpoint(), $meetingId);
         $query = [
