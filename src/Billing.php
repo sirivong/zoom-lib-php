@@ -20,6 +20,6 @@ class Billing extends Resource
     public function getBilling(string $accountId)
     {
         $endpoint = sprintf("%s/%s/billing", $this->baseEndpoint(), $accountId);
-        return $this->getObjectByEndpoint($endpoint);
+        return $this->get($endpoint);
     }
 }

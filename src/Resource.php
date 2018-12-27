@@ -107,25 +107,77 @@ abstract class Resource
      * @param string $objectId
      * @param array $query
      * @return object|ResponseInterface|null
+     * @throws \Exception
      */
     protected function getObject(string $objectId, $query = [])
     {
         $endpoint = sprintf("%s/%s", $this->baseEndpoint(), $objectId);
-        return $this->getObjectByEndpoint($endpoint, $query);
+        return $this->get($endpoint, $query);
     }
 
     /**
      * @param string $endpoint
      * @param array $query
      * @return object|ResponseInterface|null
+     * @throws \Exception
      */
-    protected function getObjectByEndpoint(string $endpoint, $query = [])
+    protected function get(string $endpoint, $query = [])
     {
+        return $this->send('GET', $endpoint, $query);
+    }
+
+    /**
+     * @param string $endpoint
+     * @param array $query
+     * @return object|ResponseInterface|null
+     * @throws \Exception
+     */
+    protected function post(string $endpoint, $query = [])
+    {
+        return $this->send('POST', $endpoint, $query);
+    }
+
+    /**
+     * @param string $endpoint
+     * @param array $query
+     * @return object|ResponseInterface|null
+     * @throws \Exception
+     */
+    protected function patch(string $endpoint, $query = [])
+    {
+        return $this->send('PATCH', $endpoint, $query);
+    }
+
+    /**
+     * @param string $endpoint
+     * @param array $query
+     * @return object|ResponseInterface|null
+     * @throws \Exception
+     */
+    protected function delete(string $endpoint, $query = [])
+    {
+        return $this->send('DELETE', $endpoint, $query);
+    }
+
+    /**
+     * @param string $method
+     * @param string $endpoint
+     * @param array $query
+     * @return object|ResponseInterface|null
+     * @throws \Exception
+     */
+    protected function send(string $method, string $endpoint, $query = [])
+    {
+        $method = strtolower($method);
+        $acceptedMethods = ['get', 'post', 'patch', 'delete'];
+        if (!in_array($method, $acceptedMethods)) {
+            throw new \Exception("Invalid method: ${method}");
+        }
         $compoundedQuery = [];
         if (!empty($query)) {
             $compoundedQuery = ['query' => $query];
         }
-        $response = $this->httpClient->get($endpoint, $compoundedQuery);
+        $response = $this->httpClient->$method($endpoint, $compoundedQuery);
         return $this->transformResponse($response);
     }
 
