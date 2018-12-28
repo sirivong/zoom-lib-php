@@ -2,8 +2,12 @@
 
 namespace Zoom;
 
+use Zoom\Transformers\Transformer;
 use GuzzleHttp\Client as HttpClient;
+use Zoom\Transformers\JsonTransformer;
 use Psr\Http\Message\ResponseInterface;
+use Zoom\Exceptions\InvalidResourceException;
+use Zoom\Exceptions\InvalidHttpMethodException;
 
 /**
  * Class Resource
@@ -11,10 +15,18 @@ use Psr\Http\Message\ResponseInterface;
  */
 abstract class Resource
 {
+    const PAGE_NUMBER = 1;
+    const PAGE_SIZE = 30;
+
     /**
-     *
+     * API version.
      */
     const VERSION = 'v2';
+
+    /**
+     * Standard HTTP verbs.
+     */
+    const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 
     /**
      * @var string
@@ -32,9 +44,9 @@ abstract class Resource
     protected $zoom;
 
     /**
-     * @var bool
+     * @var JsonTransformer
      */
-    protected $responseAsJson = true;
+    protected $transformer;
 
     /**
      * Resource constructor.
@@ -48,6 +60,16 @@ abstract class Resource
     }
 
     /**
+     * @param Transformer $transformer
+     * @return $this
+     */
+    public function transformer(Transformer $transformer)
+    {
+        $this->transformer = $transformer;
+        return $this;
+    }
+
+    /**
      * @param $name
      * @param $arguments
      * @return object|ResponseInterface|null
@@ -56,7 +78,7 @@ abstract class Resource
     public function __call($name, $arguments)
     {
         $name = strtolower($name);
-        if (in_array($name, ['get', 'post', 'put', 'patch', 'delete'])) {
+        if (in_array($name, self::HTTP_METHODS)) {
             $endpoint = null;
             $query = [];
             if (count($arguments) > 0) {
@@ -65,11 +87,11 @@ abstract class Resource
                     $query = $arguments[1];
                 }
             } else {
-                throw new \Exception("Invalid endpoint for method: ${name}");
+                throw new InvalidResourceException("Invalid endpoint for method: ${name}");
             }
             return $this->send($name, $endpoint, $query);
         }
-        throw new \Exception("Invalid method: ${name}");
+        throw new InvalidHttpMethodException("Invalid method: ${name}");
     }
 
     /**
@@ -92,25 +114,15 @@ abstract class Resource
     }
 
     /**
-     * @param bool $condition
-     * @return $this
-     */
-    protected function setResponseAsJson(bool $condition)
-    {
-        $this->responseAsJson = $condition;
-        return $this;
-    }
-
-    /**
      * @param ResponseInterface $response
      * @return ResponseInterface|object|null
      */
-    protected function transformResponse(ResponseInterface $response)
+    protected function transform(ResponseInterface $response)
     {
-        if ($this->responseAsJson) {
-            return json_decode((string)$response->getBody());
+        if ($this->transformer === null) {
+            $this->transformer = new JsonTransformer();
         }
-        return $response;
+        return $this->transformer->transform($response);
     }
 
     /**
@@ -125,7 +137,7 @@ abstract class Resource
         ];
         $endpoint = $endpoint ?: $this->endpoint();
         $response = $this->httpClient->get($endpoint, $compoundedQuery);
-        return $this->transformResponse($response);
+        return $this->transform($response);
     }
 
     /**
@@ -150,15 +162,15 @@ abstract class Resource
     protected function send(string $method, string $endpoint, $query = [])
     {
         $method = strtolower($method);
-        if (!in_array($method, ['get', 'post', 'put', 'patch', 'delete'])) {
-            throw new \Exception("Invalid method: ${method}");
+        if (!in_array($method, self::HTTP_METHODS)) {
+            throw new InvalidHttpMethodException("Invalid method: ${method}");
         }
         $compoundedQuery = [];
         if (!empty($query)) {
             $compoundedQuery = ['query' => $query];
         }
         $response = $this->httpClient->$method($endpoint, $compoundedQuery);
-        return $this->transformResponse($response);
+        return $this->transform($response);
     }
 
     /**
@@ -168,16 +180,14 @@ abstract class Resource
     protected function buildQuery($query = []): array
     {
         $compoundedQuery = [
-            'page_number' => 1,
-            'page_size' => 30,
+            'page_number' => self::PAGE_NUMBER,
+            'page_size' => self::PAGE_SIZE,
         ];
         if (!empty($query)) {
             $compoundedQuery = array_merge($compoundedQuery, $query);
-        }
-        foreach ($compoundedQuery as $k => $v) {
-            if ($v === null) {
-                unset($compoundedQuery[$k]);
-            }
+            $compoundedQuery = array_filter($compoundedQuery, function ($v) {
+                return $v !== null;
+            });
         }
         return $compoundedQuery;
     }

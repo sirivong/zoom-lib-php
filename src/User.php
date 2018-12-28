@@ -90,6 +90,6 @@ class User extends Resource
             ]
         ];
         $response = $this->httpClient->get($endpoint, $query);
-        return $this->transformResponse($response);
+        return $this->transform($response);
     }
 }

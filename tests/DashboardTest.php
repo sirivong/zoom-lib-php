@@ -23,14 +23,13 @@ final class DashboardTest extends BaseTest
     }
 
     /**
-     *
+     * public function testCanGetWebinars()
+     * {
+     * $to = Carbon::now();
+     * $from = $to->clone();
+     * $from->subMonth(1);
+     * $response = $this->client->dashboard->webinars($from, $to);
+     * $this->assertNotEmpty($response);
+     * }
      */
-    public function testCanGetWebinars()
-    {
-        $to = Carbon::now();
-        $from = $to->clone();
-        $from->subMonth(1);
-        $response = $this->client->dashboard->webinars($from, $to);
-        $this->assertNotEmpty($response);
-    }
 }

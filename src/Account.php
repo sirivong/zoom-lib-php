@@ -19,6 +19,6 @@ class Account extends Resource
     public function details()
     {
         $response = $this->httpClient->get($this->endpoint());
-        return $this->transformResponse($response);
+        return $this->transform($response);
     }
 }

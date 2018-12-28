@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ZoomTest;
 
+use Zoom\Transformers\RawTransformer;
 use GuzzleHttp\Exception\ClientException;
 
 /**
@@ -49,6 +50,9 @@ final class UserTest extends BaseTest
     {
         $response = $this->client->user->user($this->userEmail);
         $this->assertEquals($this->userEmail, $response->email);
+
+        $response = $this->client->user->transformer(new RawTransformer())->user($this->userEmail);
+        $this->assertEquals(json_decode($response)->email, $this->userEmail);
     }
 
     /**

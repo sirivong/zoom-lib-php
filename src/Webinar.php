@@ -15,7 +15,8 @@ class Webinar extends Resource
 
     /**
      * @param int $webinarId
-     * @return object|\Psr\Http\Message\ResponseInterface
+     * @return object|\Psr\Http\Message\ResponseInterface|null
+     * @throws \Exception
      */
     public function webinar(int $webinarId)
     {
