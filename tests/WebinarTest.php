@@ -25,7 +25,7 @@ final class WebinarTest extends BaseTest
      */
     public function testCanGetWebinar(): void
     {
-        $response = $this->client->webinar->getWebinar($this->webinarId);
+        $response = $this->client->webinar->webinar($this->webinarId);
         $this->assertNotNull($response);
     }
 }

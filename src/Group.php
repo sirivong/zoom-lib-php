@@ -9,6 +9,11 @@ namespace Zoom;
 class Group extends Resource
 {
     /**
+     * @var string resource base endpoint.
+     */
+    protected $endpoint = 'groups';
+
+    /**
      * @return \Psr\Http\Message\ResponseInterface|object
      */
     public function groups()

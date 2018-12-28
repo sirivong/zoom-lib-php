@@ -9,9 +9,14 @@ namespace Zoom;
 class Role extends Resource
 {
     /**
+     * @var string resource base endpoint.
+     */
+    protected $endpoint = 'roles';
+
+    /**
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function getRoles()
+    public function roles()
     {
         return $this->getObjects();
     }
@@ -22,10 +27,10 @@ class Role extends Resource
      * @param int $pageSize
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function getMembers(int $roleId, int $pageNumber = 1, int $pageSize = 30)
+    public function members(int $roleId, int $pageNumber = 1, int $pageSize = 30)
     {
-        $endpoint = sprintf("%s/%s/members", $this->baseEndpoint(), $roleId);
-        $query = $this->buildQuery(null, $pageNumber, $pageSize);
+        $endpoint = sprintf("%s/%s/members", $this->endpoint(), $roleId);
+        $query = $this->buildQuery(['page_number' => $pageNumber, 'page_size' => $pageSize]);
         return $this->getObjects($endpoint, $query);
     }
 }

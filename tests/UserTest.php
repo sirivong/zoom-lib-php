@@ -32,12 +32,12 @@ final class UserTest extends BaseTest
      */
     public function testCanGetUsers(): void
     {
-        $response = $this->client->user->getUsers();
+        $response = $this->client->user->users();
         $this->assertGreaterThan(0, count($response->users));
 
         $pageNumber = 2;
         $pageSize = 1;
-        $response = $this->client->user->getUsers($pageNumber, $pageSize);
+        $response = $this->client->user->users($pageNumber, $pageSize);
         $this->assertEquals($pageNumber, $response->page_number);
         $this->assertEquals($pageSize, $response->page_size);
     }
@@ -47,7 +47,7 @@ final class UserTest extends BaseTest
      */
     public function testCanGetUser(): void
     {
-        $response = $this->client->user->getUser($this->userEmail);
+        $response = $this->client->user->user($this->userEmail);
         $this->assertEquals($this->userEmail, $response->email);
     }
 
@@ -56,7 +56,7 @@ final class UserTest extends BaseTest
      */
     public function testCanGetMeetings(): void
     {
-        $response = $this->client->user->getMeetings($this->userEmail);
+        $response = $this->client->user->meetings($this->userEmail);
         $this->assertNotEmpty($response);
     }
 
@@ -66,7 +66,7 @@ final class UserTest extends BaseTest
     public function testCanGetWebinars(): void
     {
         try {
-            $response = $this->client->user->getWebinars($this->userEmail);
+            $response = $this->client->user->webinars($this->userEmail);
             $this->assertNotEmpty($response);
         } catch (ClientException $ce) {
         }
@@ -77,7 +77,7 @@ final class UserTest extends BaseTest
      */
     public function testCanGetSettings(): void
     {
-        $response = $this->client->user->getSettings($this->userEmail);
+        $response = $this->client->user->settings($this->userEmail);
         $this->assertNotEmpty($response);
     }
 

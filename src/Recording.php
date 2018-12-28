@@ -11,6 +11,11 @@ use Carbon\Carbon;
 class Recording extends Resource
 {
     /**
+     * @var string resource base endpoint.
+     */
+    protected $endpoint = 'recordings';
+
+    /**
      * @param string $userIdOrEmail
      * @param $from
      * @param $to
@@ -28,7 +33,7 @@ class Recording extends Resource
         $dateFrom = Carbon::parse($from)->format('Y-m-d');
         $dateTo = Carbon::parse($to)->format('Y-m-d');
         $query = $this->buildQuery(array_merge(['from' => $dateFrom, 'to' => $dateTo], $options));
-        $endpoint = sprintf("%s/%s/recordings", $this->baseEndpoint('users'), $userIdOrEmail);
+        $endpoint = sprintf("%s/%s/recordings", $this->endpoint('users'), $userIdOrEmail);
         return $this->getObjects($endpoint, $query);
     }
 
@@ -38,7 +43,7 @@ class Recording extends Resource
      */
     public function getMeetingRecordings(string $meetingId)
     {
-        $endpoint = sprintf("%s/%s/recordings", $this->baseEndpoint('meetings'), $meetingId);
+        $endpoint = sprintf("%s/%s/recordings", $this->endpoint('meetings'), $meetingId);
         return $this->getObjects($endpoint);
     }
 }

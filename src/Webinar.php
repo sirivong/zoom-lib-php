@@ -9,10 +9,15 @@ namespace Zoom;
 class Webinar extends Resource
 {
     /**
+     * @var string resource base endpoint.
+     */
+    protected $endpoint = 'webinars';
+
+    /**
      * @param int $webinarId
      * @return object|\Psr\Http\Message\ResponseInterface
      */
-    public function getWebinar(int $webinarId)
+    public function webinar(int $webinarId)
     {
         return $this->getObject((string)$webinarId);
     }

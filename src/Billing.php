@@ -9,9 +9,9 @@ namespace Zoom;
 class Billing extends Resource
 {
     /**
-     * @var string
+     * @var string resource base endpoint.
      */
-    protected $baseEndpoint = 'accounts';
+    protected $endpoint = 'accounts';
 
     /**
      * @param string $accountId
@@ -19,7 +19,7 @@ class Billing extends Resource
      */
     public function getBilling(string $accountId)
     {
-        $endpoint = sprintf("%s/%s/billing", $this->baseEndpoint(), $accountId);
+        $endpoint = sprintf("%s/%s/billing", $this->endpoint(), $accountId);
         return $this->get($endpoint);
     }
 }

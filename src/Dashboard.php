@@ -9,9 +9,9 @@ namespace Zoom;
 class Dashboard extends Resource
 {
     /**
-     * @var string
+     * @var string resource base endpoint.
      */
-    protected $baseEndpoint = 'metrics';
+    protected $endpoint = 'metrics';
 
     /**
      * @param $from
@@ -55,11 +55,53 @@ class Dashboard extends Resource
             'to' => $to,
         ];
         if (!empty($filters)) {
-            foreach ($filters as $k => $v) {
-                $query[$k] = $v;
-            }
+            $query = array_merge($query, $filters);
         }
-        $endpoint = sprintf("%s/%s", $this->baseEndpoint(), $category);
+        $endpoint = sprintf("%s/%s", $this->endpoint(), $category);
+        return $this->get($endpoint, $query);
+    }
+
+    /**
+     * @param $webinarId
+     * @param string $type
+     * @return mixed
+     */
+    public function webinar($webinarId, $type = null)
+    {
+        $filters = [];
+        if (!empty($type)) {
+            $filters['type'] = $type;
+        }
+        return $this->object('webinars', $webinarId, $filters);
+    }
+
+    /**
+     * @param $meetingId
+     * @param string $type
+     * @return mixed
+     */
+    public function meeting($meetingId, $type = null)
+    {
+        $filters = [];
+        if (!empty($type)) {
+            $filters['type'] = $type;
+        }
+        return $this->objects('meetings', $meetingId, $filters);
+    }
+
+    /**
+     * @param $category
+     * @param $objectId
+     * @param array $filters
+     * @return mixed
+     */
+    protected function object($category, $objectId, $filters = [])
+    {
+        $query = [];
+        if (!empty($filters)) {
+            $query = array_merge($query, $filters);
+        }
+        $endpoint = sprintf("%s/%s/%s", $this->endpoint(), $category, $objectId);
         return $this->get($endpoint, $query);
     }
 }

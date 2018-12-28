@@ -19,7 +19,7 @@ abstract class Resource
     /**
      * @var string
      */
-    protected $baseEndpoint;
+    protected $endpoint;
 
     /**
      * @var HttpClient
@@ -73,22 +73,22 @@ abstract class Resource
     }
 
     /**
-     * @param string|null $baseEndpoint
+     * @param string|null $endpoint
      * @return string
      */
-    protected function baseEndpoint(string $baseEndpoint = null): string
+    protected function endpoint(string $endpoint = null): string
     {
-        if (empty($baseEndpoint)) {
-            if (!empty($this->baseEndpoint)) {
-                $baseEndpoint = $this->baseEndpoint;
+        if (empty($endpoint)) {
+            if (!empty($this->endpoint)) {
+                $endpoint = $this->endpoint;
             } else {
                 try {
-                    $baseEndpoint = strtolower((new \ReflectionClass($this))->getShortName()) . 's';
+                    $endpoint = strtolower((new \ReflectionClass($this))->getShortName()) . 's';
                 } catch (\ReflectionException $re) {
                 }
             }
         }
-        return sprintf("/%s/%s", self::VERSION, $baseEndpoint);
+        return sprintf("/%s/%s", self::VERSION, $endpoint);
     }
 
     /**
@@ -123,7 +123,7 @@ abstract class Resource
         $compoundedQuery = [
             'query' => $this->buildQuery($query),
         ];
-        $endpoint = $endpoint ?: $this->baseEndpoint();
+        $endpoint = $endpoint ?: $this->endpoint();
         $response = $this->httpClient->get($endpoint, $compoundedQuery);
         return $this->transformResponse($response);
     }
@@ -136,7 +136,7 @@ abstract class Resource
      */
     protected function getObject(string $objectId, $query = [])
     {
-        $endpoint = sprintf("%s/%s", $this->baseEndpoint(), $objectId);
+        $endpoint = sprintf("%s/%s", $this->endpoint(), $objectId);
         return $this->get($endpoint, $query);
     }
 
@@ -163,18 +163,21 @@ abstract class Resource
 
     /**
      * @param array $query
-     * @param int $pageNumber
-     * @param int $pageSize
      * @return array
      */
-    protected function buildQuery($query = [], int $pageNumber = 1, int $pageSize = 30): array
+    protected function buildQuery($query = []): array
     {
         $compoundedQuery = [
-            'page_number' => $pageNumber,
-            'page_size' => $pageSize,
+            'page_number' => 1,
+            'page_size' => 30,
         ];
         if (!empty($query)) {
             $compoundedQuery = array_merge($compoundedQuery, $query);
+        }
+        foreach ($compoundedQuery as $k => $v) {
+            if ($v === null) {
+                unset($compoundedQuery[$k]);
+            }
         }
         return $compoundedQuery;
     }

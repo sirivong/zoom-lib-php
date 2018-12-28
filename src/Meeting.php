@@ -9,6 +9,11 @@ namespace Zoom;
 class Meeting extends Resource
 {
     /**
+     * @var string resource base endpoint.
+     */
+    protected $endpoint = 'meetings';
+
+    /**
      * @param int $meetingId
      * @param int $pageNumber
      * @param int $pageSize
@@ -18,7 +23,7 @@ class Meeting extends Resource
      */
     public function registrants(int $meetingId, int $pageNumber = 1, int $pageSize = 30, $occurrenceId = null, $status = null)
     {
-        $endpoint = sprintf("%s/%s/registrants", $this->baseEndpoint(), $meetingId);
+        $endpoint = sprintf("%s/%s/registrants", $this->endpoint(), $meetingId);
         $query = [
             'page_number' => $pageNumber,
             'page_size' => $pageSize,
@@ -39,7 +44,7 @@ class Meeting extends Resource
      */
     public function end(int $meetingId)
     {
-        $endpoint = sprintf("%s/%s/status", $this->baseEndpoint(), $meetingId);
+        $endpoint = sprintf("%s/%s/status", $this->endpoint(), $meetingId);
         $query = ['action' => 'end'];
         return $this->put($endpoint, $query);
     }
@@ -52,7 +57,7 @@ class Meeting extends Resource
      */
     public function delete(int $meetingId, $occurrenceId = null)
     {
-        $endpoint = sprintf("%s/%s", $this->baseEndpoint(), $meetingId);
+        $endpoint = sprintf("%s/%s", $this->endpoint(), $meetingId);
         $query = [];
         if (!empty($occurrenceId)) {
             $query = ['occurrence_id' => $occurrenceId];

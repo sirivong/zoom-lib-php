@@ -11,9 +11,9 @@ use Carbon\Carbon;
 class Report extends Resource
 {
     /**
-     * @var string
+     * @var string resource base endpoint.
      */
-    protected $baseEndpoint = 'report';
+    protected $endpoint = 'report';
 
     /**
      * @param int $month
@@ -33,7 +33,7 @@ class Report extends Resource
                 'year' => $year,
             ]
         ];
-        $endpoint = sprintf("%s/daily", $this->baseEndpoint());
+        $endpoint = sprintf("%s/daily", $this->endpoint());
         return $this->getObjects($endpoint, $query);
     }
 }
