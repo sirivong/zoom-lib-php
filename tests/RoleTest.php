@@ -25,7 +25,7 @@ final class RoleTest extends BaseTest
      */
     public function testCanGetRoles(): void
     {
-        $response = $this->client->role->roles();
+        $response = $this->zoom->role->get();
         $this->assertGreaterThan(0, count($response->roles));
     }
 
@@ -34,7 +34,7 @@ final class RoleTest extends BaseTest
      */
     public function testCanGetMembers(): void
     {
-        $response = $this->client->role->members($this->roleId);
+        $response = $this->zoom->role->members($this->roleId);
         $this->assertGreaterThan(0, count($response->members));
     }
 }

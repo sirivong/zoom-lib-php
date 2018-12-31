@@ -44,7 +44,7 @@ final class RecordingTest extends BaseTest
     {
         $from = Carbon::parse('yesterday')->format('Y-m-d');
         $to = Carbon::now()->format('Y-m-d');
-        $response = $this->client->recording->getRecordings($this->userEmail, $from, $to);
+        $response = $this->zoom->recording->recordings($this->userEmail, $from, $to);
         $this->assertNotNull($response);
     }
 
@@ -54,7 +54,7 @@ final class RecordingTest extends BaseTest
     public function testCanGetMeetingRecordings(): void
     {
         try {
-            $response = $this->client->recording->getMeetingRecordings($this->meetingId);
+            $response = $this->zoom->recording->meetingRecordings($this->meetingId);
             $this->assertGreaterThan(0, count($response->meetings));
         } catch (ClientException $ce) {
         }

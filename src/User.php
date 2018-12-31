@@ -14,67 +14,35 @@ class User extends Resource
     protected $endpoint = 'users';
 
     /**
-     * @param int $pageNumber
-     * @param int $pageSize
-     * @param string|null $status
+     * @param string $userId
+     * @param array $query
      * @return \Psr\Http\Message\ResponseInterface|object
+     * public function meetings(string $userId, array $query = [])
+     * {
+     * $endpoint = sprintf("%s/%s/meetings", $this->endpoint(), $userId);
+     * return $this->list($query, $endpoint);
+     * }
      */
-    public function users(int $pageNumber = 1, int $pageSize = 30, $status = null)
-    {
-        $query = [
-            'page_number' => $pageNumber,
-            'page_size' => $pageSize,
-            'status' => $status,
-        ];
-        return $this->getObjects(null, $this->buildQuery($query));
-    }
 
     /**
-     * @param string $userIdOrEmail
-     * @param null $loginType
-     * @return object|\Psr\Http\Message\ResponseInterface|null
-     * @throws \Exception
+     * @param string $userId
+     * @param array $query
+     * @return \Psr\Http\Message\ResponseInterface|object
+     * public function webinars(string $userId, array $query = [])
+     * {
+     * $endpoint = sprintf("%s/%s/webinars", $this->endpoint(), $userId);
+     * return $this->list($query, $endpoint);
+     * }
      */
-    public function user(string $userIdOrEmail, $loginType = null)
-    {
-        $query = !empty($loginType) ? ['login_type' => $loginType] : [];
-        return $this->getObject($userIdOrEmail, $query);
-    }
 
     /**
-     * @param string $userIdOrEmail
-     * @param int $pageNumber
-     * @param int $pageSize
+     * @param string $userId
      * @return \Psr\Http\Message\ResponseInterface|object
      */
-    public function meetings(string $userIdOrEmail, $pageNumber = 1, $pageSize = 30)
+    public function settings(string $userId, ?array $query = [])
     {
-        $endpoint = sprintf("%s/%s/meetings", $this->endpoint(), $userIdOrEmail);
-        $query = $this->buildQuery(['page_number' => $pageNumber, 'page_size' => $pageSize]);
-        return $this->getObjects($endpoint, $query);
-    }
-
-    /**
-     * @param string $userIdOrEmail
-     * @param int $pageNumber
-     * @param int $pageSize
-     * @return \Psr\Http\Message\ResponseInterface|object
-     */
-    public function webinars(string $userIdOrEmail, $pageNumber = 1, $pageSize = 30)
-    {
-        $endpoint = sprintf("%s/%s/webinars", $this->endpoint(), $userIdOrEmail);
-        $query = $this->buildQuery(['page_number' => $pageNumber, 'page_size' => $pageSize]);
-        return $this->getObjects($endpoint, $query);
-    }
-
-    /**
-     * @param string $userIdOrEmail
-     * @return \Psr\Http\Message\ResponseInterface|object
-     */
-    public function settings(string $userIdOrEmail)
-    {
-        $endpoint = sprintf("%s/%s/settings", $this->endpoint(), $userIdOrEmail);
-        return $this->getObjects($endpoint);
+        $endpoint = sprintf("%s/%s/settings", $this->endpoint(), $userId);
+        return $this->get(null, $endpoint, $query);
     }
 
     /**
@@ -84,12 +52,7 @@ class User extends Resource
     public function checkEmail(string $email)
     {
         $endpoint = sprintf("%s/email", $this->endpoint());
-        $query = [
-            'query' => [
-                'email' => $email
-            ]
-        ];
-        $response = $this->httpClient->get($endpoint, $query);
-        return $this->transform($response);
+        $query = ['email' => $email];
+        return $this->get(null, $endpoint, $query);
     }
 }

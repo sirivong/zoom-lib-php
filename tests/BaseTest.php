@@ -24,7 +24,7 @@ abstract class BaseTest extends TestCase
     /**
      * @var null
      */
-    protected $client = null;
+    protected $zoom = null;
 
     /**
      * @throws \Exception
@@ -40,6 +40,6 @@ abstract class BaseTest extends TestCase
         }
 
         $options = [];
-        $this->client = new Zoom($this->apiKey, $this->apiSecret, $options);
+        $this->zoom = new Zoom($this->apiKey, $this->apiSecret, $options);
     }
 }

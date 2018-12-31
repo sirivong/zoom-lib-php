@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace ZoomTest;
 
 use Zoom\Transformers\RawTransformer;
-use GuzzleHttp\Exception\ClientException;
 
 /**
  * Class UserTest
@@ -14,7 +13,7 @@ final class UserTest extends BaseTest
     /**
      * @var
      */
-    protected $userEmail;
+    protected $email;
 
     /**
      * @throws \Exception
@@ -22,8 +21,8 @@ final class UserTest extends BaseTest
     public function setUp()
     {
         parent::setUp();
-        $this->userEmail = getenv('ZOOM_TEST_EMAIL') ?: '';
-        if (empty($this->userEmail)) {
+        $this->email = getenv('ZOOM_TEST_EMAIL') ?: '';
+        if (empty($this->email)) {
             throw new \Exception('ZOOM_TEST_EMAIL environment variable is not set.');
         }
     }
@@ -33,12 +32,12 @@ final class UserTest extends BaseTest
      */
     public function testCanGetUsers(): void
     {
-        $response = $this->client->user->users();
+        $response = $this->zoom->user->get();
         $this->assertGreaterThan(0, count($response->users));
 
         $pageNumber = 2;
         $pageSize = 1;
-        $response = $this->client->user->users($pageNumber, $pageSize);
+        $response = $this->zoom->user->get(null, null, ['page_number' => $pageNumber, 'page_size' => $pageSize]);
         $this->assertEquals($pageNumber, $response->page_number);
         $this->assertEquals($pageSize, $response->page_size);
     }
@@ -48,32 +47,11 @@ final class UserTest extends BaseTest
      */
     public function testCanGetUser(): void
     {
-        $response = $this->client->user->user($this->userEmail);
-        $this->assertEquals($this->userEmail, $response->email);
+        $response = $this->zoom->user->get($this->email);
+        $this->assertEquals($this->email, $response->email);
 
-        $response = $this->client->user->transformer(new RawTransformer())->user($this->userEmail);
-        $this->assertEquals(json_decode($response)->email, $this->userEmail);
-    }
-
-    /**
-     *
-     */
-    public function testCanGetMeetings(): void
-    {
-        $response = $this->client->user->meetings($this->userEmail);
-        $this->assertNotEmpty($response);
-    }
-
-    /**
-     *
-     */
-    public function testCanGetWebinars(): void
-    {
-        try {
-            $response = $this->client->user->webinars($this->userEmail);
-            $this->assertNotEmpty($response);
-        } catch (ClientException $ce) {
-        }
+        $response = $this->zoom->user->transformer(new RawTransformer())->get($this->email);
+        $this->assertEquals(json_decode($response)->email, $this->email);
     }
 
     /**
@@ -81,7 +59,7 @@ final class UserTest extends BaseTest
      */
     public function testCanGetSettings(): void
     {
-        $response = $this->client->user->settings($this->userEmail);
+        $response = $this->zoom->user->settings($this->email);
         $this->assertNotEmpty($response);
     }
 
@@ -90,11 +68,11 @@ final class UserTest extends BaseTest
      */
     public function testCanCheckEmail(): void
     {
-        $response = $this->client->user->checkEmail($this->userEmail);
+        $response = $this->zoom->user->checkEmail($this->email);
         $this->assertTrue($response->existed_email);
 
         $invalidEmail = 'invalid-user-account@invalid-email-domain.tld';
-        $response = $this->client->user->checkEmail($invalidEmail);
+        $response = $this->zoom->user->checkEmail($invalidEmail);
         $this->assertFalse($response->existed_email);
     }
 }

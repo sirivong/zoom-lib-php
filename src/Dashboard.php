@@ -36,32 +36,6 @@ class Dashboard extends Resource
     }
 
     /**
-     * @param $category
-     * @param $from
-     * @param $to
-     * @param array $filters
-     * @return mixed
-     */
-    protected function objects($category, $from, $to, $filters = [])
-    {
-        if (is_a($from, \DateTime::class)) {
-            $from = $from->format('Y-m-d');
-        }
-        if (is_a($to, \DateTime::class)) {
-            $to = $to->format('Y-m-d');
-        }
-        $query = [
-            'from' => $from,
-            'to' => $to,
-        ];
-        if (!empty($filters)) {
-            $query = array_merge($query, $filters);
-        }
-        $endpoint = sprintf("%s/%s", $this->endpoint(), $category);
-        return $this->get($endpoint, $query);
-    }
-
-    /**
      * @param $webinarId
      * @param string $type
      * @return mixed
@@ -91,6 +65,32 @@ class Dashboard extends Resource
 
     /**
      * @param $category
+     * @param $from
+     * @param $to
+     * @param array $filters
+     * @return mixed
+     */
+    protected function objects($category, $from, $to, $filters = [])
+    {
+        if (is_a($from, \DateTime::class)) {
+            $from = $from->format('Y-m-d');
+        }
+        if (is_a($to, \DateTime::class)) {
+            $to = $to->format('Y-m-d');
+        }
+        $query = [
+            'from' => $from,
+            'to' => $to,
+        ];
+        if (!empty($filters)) {
+            $query = array_merge($query, $filters);
+        }
+        $endpoint = sprintf("%s/%s", $this->endpoint(), $category);
+        return $this->zoom->get($endpoint, $query);
+    }
+
+    /**
+     * @param $category
      * @param $objectId
      * @param array $filters
      * @return mixed
@@ -102,6 +102,6 @@ class Dashboard extends Resource
             $query = array_merge($query, $filters);
         }
         $endpoint = sprintf("%s/%s/%s", $this->endpoint(), $category, $objectId);
-        return $this->get($endpoint, $query);
+        return $this->zoom->get($endpoint, $query);
     }
 }

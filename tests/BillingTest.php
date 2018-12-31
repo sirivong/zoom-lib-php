@@ -6,10 +6,12 @@ namespace ZoomTest;
 use GuzzleHttp\Exception\ClientException;
 
 /**
- * Class AccountTest
+ * Class BillingTest
  */
-final class AccountTest extends BaseTest
+final class BillingTest extends BaseTest
 {
+    protected $accountId;
+
     /**
      * @throws \Exception
      */
@@ -22,13 +24,10 @@ final class AccountTest extends BaseTest
         }
     }
 
-    /**
-     *
-     */
     public function testCanGetInfo(): void
     {
         try {
-            $response = $this->zoom->account->get();
+            $response = $this->zoom->billing->get();
             $this->assertNotNull($response);
         } catch (ClientException $ce) {
         }

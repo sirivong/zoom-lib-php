@@ -11,7 +11,12 @@ use GuzzleHttp\Exception\ClientException;
 final class MeetingTest extends BaseTest
 {
     /**
-     * @var
+     * @var string
+     */
+    protected $email;
+
+    /**
+     * @var string
      */
     protected $meetingId;
 
@@ -21,9 +26,25 @@ final class MeetingTest extends BaseTest
     public function setUp()
     {
         parent::setUp();
-        $this->meetingId = (int)getenv('ZOOM_TEST_MEETING_ID') ?: 0;
+        $this->email = getenv('ZOOM_TEST_EMAIL') ?: '';
+        if (empty($this->email)) {
+            throw new \Exception('ZOOM_TEST_EMAIL environment variable is not set.');
+        }
+        $this->meetingId = getenv('ZOOM_TEST_MEETING_ID') ?: '';
         if (!$this->meetingId) {
             throw new \Exception('ZOOM_TEST_MEETING_ID environment variable is not set.');
+        }
+    }
+
+    /**
+     *
+     */
+    public function testCanGetMeetings(): void
+    {
+        try {
+            $response = $this->zoom->meeting->get($this->email);
+            $this->assertNotNull($response);
+        } catch (ClientException $ce) {
         }
     }
 
@@ -33,8 +54,8 @@ final class MeetingTest extends BaseTest
     public function testCanGetRegistrants(): void
     {
         try {
-            $meeting = $this->client->meeting->registrants($this->meetingId);
-            $this->assertGreaterThan(0, count($meeting->registrants));
+            $meeting = $this->zoom->meeting->registrants($this->meetingId);
+            $this->assertNotNull($meeting);
         } catch (ClientException $ce) {
         }
     }

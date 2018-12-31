@@ -20,7 +20,7 @@ class Report extends Resource
      * @param int $year
      * @return object|\Psr\Http\Message\ResponseInterface|null
      */
-    public function getDailyReport(int $month = -1, int $year = -1)
+    public function dailyReport(int $month = -1, int $year = -1)
     {
         if (!($month && $year)) {
             $now = Carbon::now();
@@ -28,12 +28,10 @@ class Report extends Resource
             $year = $now->year;
         }
         $query = [
-            'query' => [
-                'month' => $month,
-                'year' => $year,
-            ]
+            'month' => $month,
+            'year' => $year,
         ];
         $endpoint = sprintf("%s/daily", $this->endpoint());
-        return $this->getObjects($endpoint, $query);
+        return $this->zoom->get($endpoint, $query, $this->transformer);
     }
 }

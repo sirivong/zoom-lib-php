@@ -5,9 +5,6 @@ namespace Zoom;
 use Zoom\Transformers\Transformer;
 use GuzzleHttp\Client as HttpClient;
 use Zoom\Transformers\JsonTransformer;
-use Psr\Http\Message\ResponseInterface;
-use Zoom\Exceptions\InvalidResourceException;
-use Zoom\Exceptions\InvalidHttpMethodException;
 
 /**
  * Class Resource
@@ -15,18 +12,10 @@ use Zoom\Exceptions\InvalidHttpMethodException;
  */
 abstract class Resource
 {
-    const PAGE_NUMBER = 1;
-    const PAGE_SIZE = 30;
-
     /**
      * API version.
      */
     const VERSION = 'v2';
-
-    /**
-     * Standard HTTP verbs.
-     */
-    const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 
     /**
      * @var string
@@ -39,24 +28,23 @@ abstract class Resource
     protected $httpClient;
 
     /**
-     * @var Zoom
-     */
-    protected $zoom;
-
-    /**
      * @var JsonTransformer
      */
     protected $transformer;
 
     /**
+     * @var Zoom
+     */
+    protected $zoom;
+
+    /**
      * Resource constructor.
-     * @param HttpClient $httpClient
      * @param Zoom $zoom
      */
-    public function __construct(HttpClient $httpClient, Zoom $zoom)
+    public function __construct(Zoom $zoom)
     {
-        $this->httpClient = $httpClient;
         $this->zoom = $zoom;
+        $this->transformer = new JsonTransformer();
     }
 
     /**
@@ -70,28 +58,21 @@ abstract class Resource
     }
 
     /**
-     * @param $name
-     * @param $arguments
-     * @return object|ResponseInterface|null
-     * @throws \Exception
+     * @param string|null $resourceId
+     * @param string|null $endpoint
+     * @param array $query
+     * @return mixed
      */
-    public function __call($name, $arguments)
+    public function get(?string $resourceId = null, ?string $endpoint = null, ?array $query = [])
     {
-        $name = strtolower($name);
-        if (in_array($name, self::HTTP_METHODS)) {
-            $endpoint = null;
-            $query = [];
-            if (count($arguments) > 0) {
-                $endpoint = $arguments[0];
-                if (count($arguments) > 1) {
-                    $query = $arguments[1];
-                }
-            } else {
-                throw new InvalidResourceException("Invalid endpoint for method: ${name}");
+        if (empty($endpoint)) {
+            $uriParts = [$this->endpoint()];
+            if (!empty($resourceId)) {
+                $uriParts[] = $resourceId;
             }
-            return $this->send($name, $endpoint, $query);
+            $endpoint = implode('/', $uriParts);
         }
-        throw new InvalidHttpMethodException("Invalid method: ${name}");
+        return $this->zoom->get($endpoint, $query, $this->transformer);
     }
 
     /**
@@ -110,85 +91,7 @@ abstract class Resource
                 }
             }
         }
+        $endpoint = preg_replace('#^/+#', '', $endpoint);
         return sprintf("/%s/%s", self::VERSION, $endpoint);
-    }
-
-    /**
-     * @param ResponseInterface $response
-     * @return ResponseInterface|object|null
-     */
-    protected function transform(ResponseInterface $response)
-    {
-        if ($this->transformer === null) {
-            $this->transformer = new JsonTransformer();
-        }
-        return $this->transformer->transform($response);
-    }
-
-    /**
-     * @param array $query
-     * @param string|null $endpoint
-     * @return object|ResponseInterface|null
-     */
-    protected function getObjects(string $endpoint = null, array $query = [])
-    {
-        $compoundedQuery = [
-            'query' => $this->buildQuery($query),
-        ];
-        $endpoint = $endpoint ?: $this->endpoint();
-        $response = $this->httpClient->get($endpoint, $compoundedQuery);
-        return $this->transform($response);
-    }
-
-    /**
-     * @param string $objectId
-     * @param array $query
-     * @return object|ResponseInterface|null
-     * @throws \Exception
-     */
-    protected function getObject(string $objectId, $query = [])
-    {
-        $endpoint = sprintf("%s/%s", $this->endpoint(), $objectId);
-        return $this->get($endpoint, $query);
-    }
-
-    /**
-     * @param string $method
-     * @param string $endpoint
-     * @param array $query
-     * @return object|ResponseInterface|null
-     * @throws \Exception
-     */
-    protected function send(string $method, string $endpoint, $query = [])
-    {
-        $method = strtolower($method);
-        if (!in_array($method, self::HTTP_METHODS)) {
-            throw new InvalidHttpMethodException("Invalid method: ${method}");
-        }
-        $compoundedQuery = [];
-        if (!empty($query)) {
-            $compoundedQuery = ['query' => $query];
-        }
-        $response = $this->httpClient->$method($endpoint, $compoundedQuery);
-        return $this->transform($response);
-    }
-
-    /**
-     * @param array $query
-     * @return array
-     */
-    protected function buildQuery($query = []): array
-    {
-        $compoundedQuery = [
-            'page_number' => self::PAGE_NUMBER,
-            'page_size' => self::PAGE_SIZE,
-        ];
-        if (!empty($query)) {
-            $compoundedQuery = array_merge($compoundedQuery, $query);
-            $compoundedQuery = array_filter($compoundedQuery, function ($v) {
-                return $v !== null;
-            });
-        }
-        return $compoundedQuery;
     }
 }

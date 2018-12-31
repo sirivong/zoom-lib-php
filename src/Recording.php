@@ -16,34 +16,29 @@ class Recording extends Resource
     protected $endpoint = 'recordings';
 
     /**
-     * @param string $userIdOrEmail
+     * @param string $userId
      * @param $from
      * @param $to
-     * @param array $options
-     * $options = [
-     *     'page_size' => 30,
-     *     'nextPageToken' => null,
-     *     'mc' => false,
-     *     'trash' => false,
-     * ];
+     * @param array $query
      * @return object|\Psr\Http\Message\ResponseInterface|null
      */
-    public function getRecordings(string $userIdOrEmail, string $from, string $to, $options = [])
+    public function recordings(string $userId, string $from, string $to, array $query = [])
     {
         $dateFrom = Carbon::parse($from)->format('Y-m-d');
         $dateTo = Carbon::parse($to)->format('Y-m-d');
-        $query = $this->buildQuery(array_merge(['from' => $dateFrom, 'to' => $dateTo], $options));
-        $endpoint = sprintf("%s/%s/recordings", $this->endpoint('users'), $userIdOrEmail);
-        return $this->getObjects($endpoint, $query);
+        $query = array_merge($query, ['from' => $dateFrom, 'to' => $dateTo]);
+        $endpoint = sprintf("%s/%s/recordings", $this->endpoint('users'), $userId);
+        return $this->get(null, $endpoint, $query);
     }
 
     /**
      * @param string $meetingId
      * @return object|\Psr\Http\Message\ResponseInterface|null
      */
-    public function getMeetingRecordings(string $meetingId)
+    public function meetingRecordings(string $meetingId)
     {
+        $query = [];
         $endpoint = sprintf("%s/%s/recordings", $this->endpoint('meetings'), $meetingId);
-        return $this->getObjects($endpoint);
+        return $this->get(null, $endpoint, $query);
     }
 }
