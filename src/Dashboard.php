@@ -16,23 +16,23 @@ class Dashboard extends Resource
     /**
      * @param $from
      * @param $to
-     * @param array $filters
+     * @param array $query
      * @return mixed
      */
-    public function webinars($from, $to, $filters = [])
+    public function webinars($from, $to, $query = [])
     {
-        return $this->objects('webinars', $from, $to, $filters);
+        return $this->objects('webinars', $from, $to, $query);
     }
 
     /**
      * @param $from
      * @param $to
-     * @param array $filters
+     * @param array $query
      * @return mixed
      */
-    public function meetings($from, $to, $filters = [])
+    public function meetings($from, $to, $query = [])
     {
-        return $this->objects('meetings', $from, $to, $filters);
+        return $this->objects('meetings', $from, $to, $query);
     }
 
     /**
@@ -42,11 +42,8 @@ class Dashboard extends Resource
      */
     public function webinar($webinarId, $type = null)
     {
-        $filters = [];
-        if (!empty($type)) {
-            $filters['type'] = $type;
-        }
-        return $this->object('webinars', $webinarId, $filters);
+        $query = ['type' => $type];
+        return $this->object('webinars', $webinarId, $query);
     }
 
     /**
@@ -56,21 +53,18 @@ class Dashboard extends Resource
      */
     public function meeting($meetingId, $type = null)
     {
-        $filters = [];
-        if (!empty($type)) {
-            $filters['type'] = $type;
-        }
-        return $this->objects('meetings', $meetingId, $filters);
+        $query = ['type' => $type];
+        return $this->objects('meetings', $meetingId, $query);
     }
 
     /**
-     * @param $category
+     * @param string $category
      * @param $from
      * @param $to
-     * @param array $filters
+     * @param array $query
      * @return mixed
      */
-    protected function objects($category, $from, $to, $filters = [])
+    protected function objects(string $category, $from, $to, ?array $query = [])
     {
         if (is_a($from, \DateTime::class)) {
             $from = $from->format('Y-m-d');
@@ -78,30 +72,20 @@ class Dashboard extends Resource
         if (is_a($to, \DateTime::class)) {
             $to = $to->format('Y-m-d');
         }
-        $query = [
-            'from' => $from,
-            'to' => $to,
-        ];
-        if (!empty($filters)) {
-            $query = array_merge($query, $filters);
-        }
+        $query = array_merge(['from' => $from, 'to' => $to], $query);
         $endpoint = sprintf("%s/%s", $this->endpoint(), $category);
-        return $this->zoom->get($endpoint, $query);
+        return $this->get(null, $endpoint, $query);
     }
 
     /**
-     * @param $category
-     * @param $objectId
-     * @param array $filters
+     * @param string $category
+     * @param string $objectId
+     * @param array $query
      * @return mixed
      */
-    protected function object($category, $objectId, $filters = [])
+    protected function object(string $category, string $objectId, ?array $query = [])
     {
-        $query = [];
-        if (!empty($filters)) {
-            $query = array_merge($query, $filters);
-        }
         $endpoint = sprintf("%s/%s/%s", $this->endpoint(), $category, $objectId);
-        return $this->zoom->get($endpoint, $query);
+        return $this->get(null, $endpoint, $query);
     }
 }

@@ -32,6 +32,6 @@ class Report extends Resource
             'year' => $year,
         ];
         $endpoint = sprintf("%s/daily", $this->endpoint());
-        return $this->zoom->get($endpoint, $query, $this->transformer);
+        return $this->get(null, $endpoint, $query);
     }
 }

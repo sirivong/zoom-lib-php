@@ -66,13 +66,13 @@ final class UserTest extends BaseTest
     /**
      *
      */
-    public function testCanCheckEmail(): void
+    public function testEmailExisted(): void
     {
-        $response = $this->zoom->user->checkEmail($this->email);
-        $this->assertTrue($response->existed_email);
+        $emailExisted = $this->zoom->user->emailExisted($this->email);
+        $this->assertTrue($emailExisted);
 
         $invalidEmail = 'invalid-user-account@invalid-email-domain.tld';
-        $response = $this->zoom->user->checkEmail($invalidEmail);
-        $this->assertFalse($response->existed_email);
+        $emailExisted = $this->zoom->user->emailExisted($invalidEmail);
+        $this->assertFalse($emailExisted);
     }
 }

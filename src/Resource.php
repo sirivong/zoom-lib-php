@@ -66,11 +66,10 @@ abstract class Resource
     public function get(?string $resourceId = null, ?string $endpoint = null, ?array $query = [])
     {
         if (empty($endpoint)) {
-            $uriParts = [$this->endpoint()];
+            $endpoint = $this->endpoint();
             if (!empty($resourceId)) {
-                $uriParts[] = $resourceId;
+                $endpoint = sprintf("%s/%s", $endpoint, $resourceId);
             }
-            $endpoint = implode('/', $uriParts);
         }
         return $this->zoom->get($endpoint, $query, $this->transformer);
     }
@@ -79,7 +78,7 @@ abstract class Resource
      * @param string|null $endpoint
      * @return string
      */
-    protected function endpoint(string $endpoint = null): string
+    protected function endpoint(?string $endpoint = null): string
     {
         if (empty($endpoint)) {
             if (!empty($this->endpoint)) {

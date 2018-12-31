@@ -2,8 +2,6 @@
 
 namespace Zoom;
 
-use Carbon\Carbon;
-
 /**
  * Class Recording
  * @package Zoom
@@ -22,11 +20,15 @@ class Recording extends Resource
      * @param array $query
      * @return object|\Psr\Http\Message\ResponseInterface|null
      */
-    public function recordings(string $userId, string $from, string $to, array $query = [])
+    public function recordings(string $userId, $from, $to, ?array $query = [])
     {
-        $dateFrom = Carbon::parse($from)->format('Y-m-d');
-        $dateTo = Carbon::parse($to)->format('Y-m-d');
-        $query = array_merge($query, ['from' => $dateFrom, 'to' => $dateTo]);
+        if (is_a($from, \DateTime::class)) {
+            $from = $from->format('Y-m-d');
+        }
+        if (is_a($to, \DateTime::class)) {
+            $to = $to->format('Y-m-d');
+        }
+        $query = array_merge($query, ['from' => $from, 'to' => $to]);
         $endpoint = sprintf("%s/%s/recordings", $this->endpoint('users'), $userId);
         return $this->get(null, $endpoint, $query);
     }
@@ -37,8 +39,7 @@ class Recording extends Resource
      */
     public function meetingRecordings(string $meetingId)
     {
-        $query = [];
         $endpoint = sprintf("%s/%s/recordings", $this->endpoint('meetings'), $meetingId);
-        return $this->get(null, $endpoint, $query);
+        return $this->get(null, $endpoint);
     }
 }

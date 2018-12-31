@@ -39,7 +39,7 @@ final class WebinarTest extends BaseTest
      */
     public function testCanGetWebinars(): void
     {
-        $response = $this->zoom->webinar->get($this->email);
+        $response = $this->zoom->webinar->getMany($this->email);
         $this->assertNotNull($response);
     }
 
@@ -48,7 +48,7 @@ final class WebinarTest extends BaseTest
      */
     public function testCanGetWebinar(): void
     {
-        $response = $this->zoom->webinar->get($this->webinarId);
+        $response = $this->zoom->webinar->getOne($this->webinarId);
         $this->assertNotNull($response);
     }
 }
