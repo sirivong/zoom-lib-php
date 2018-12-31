@@ -42,7 +42,19 @@ final class MeetingTest extends BaseTest
     public function testCanGetMeetings(): void
     {
         try {
-            $response = $this->zoom->meeting->get($this->email);
+            $response = $this->zoom->meeting->getMany($this->email);
+            $this->assertNotNull($response);
+        } catch (ClientException $ce) {
+        }
+    }
+
+    /**
+     *
+     */
+    public function testCanGetMeeting(): void
+    {
+        try {
+            $response = $this->zoom->meeting->getOne($this->meetingId);
             $this->assertNotNull($response);
         } catch (ClientException $ce) {
         }

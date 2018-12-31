@@ -27,16 +27,16 @@ final class GroupTest extends BaseTest
      */
     public function testCanGetGroups(): void
     {
-        $response = $this->zoom->group->get();
+        $response = $this->zoom->group->getMany();
         $this->assertGreaterThan(0, count($response->groups));
     }
 
     /**
      *
      */
-    public function testCanGetGroupById(): void
+    public function testCanGetGroup(): void
     {
-        $response = $this->zoom->group->get($this->groupId);
+        $response = $this->zoom->group->getOne($this->groupId);
         $this->assertNotNull($response);
     }
 }

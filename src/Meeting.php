@@ -14,15 +14,17 @@ class Meeting extends Resource
     protected $endpoint = 'meetings';
 
     /**
-     * @param string|null $userId
-     * @param string|null $endpoint
+     * @param string $userId
      * @param array|null $query
      * @return mixed
      */
-    public function get(?string $userId = null, ?string $endpoint = null, ?array $query = [])
+    public function getMany(?string $userId = null, ?array $query = [])
     {
+        if (empty($userId)) {
+            throw new \InvalidArgumentException("Invalid user ID or email: ${userId}");
+        }
         $endpoint = sprintf("%s/%s/meetings", $this->endpoint('users'), $userId);
-        return parent::get(null, $endpoint, $query);
+        return $this->get(null, $endpoint, $query);
     }
 
     /**

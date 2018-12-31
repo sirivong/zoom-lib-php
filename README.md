@@ -11,19 +11,19 @@ $apiKey = 'MY-API-KEY';
 $apiSecret = 'MY-API-SECRET';
 
 $zoom = new Zoom($apiKey, $apiSecret);
-$users = $zoom->user->get();
+$users = $zoom->user->getMany();
 
 $email = 'jane.doe@gmail.com';
-$user = Zoom::User($apiKey, $apiSecret)->get($email);
+$user = Zoom::User($apiKey, $apiSecret)->getOne($email);
 
-$groups = Zoom::Group($apiKey, $apiSecret)->get();
+$groups = Zoom::Group($apiKey, $apiSecret)->getMany();
 
 $email = 'john.doe@gmail.com';
 $query = [
     'page_number' => 2,
     'page_size' => 50,
 ];
-$meetings = $zoom->meeting->get($email, null, $query);
+$meetings = $zoom->meeting->getMany($email, $query);
 
 $meetingId = 1234567890;
 $registrants = Zoom::Meeting($apiKey, $apiSecret)

@@ -75,6 +75,25 @@ abstract class Resource
     }
 
     /**
+     * @param string $resourceId
+     * @return mixed
+     */
+    public function getOne(string $resourceId)
+    {
+        return $this->get($resourceId);
+    }
+
+    /**
+     * @param string|null $resourceId
+     * @param array|null $query
+     * @return mixed
+     */
+    public function getMany(?string $resourceId = null, ?array $query = [])
+    {
+        return $this->get(null, $this->endpoint(), $query);
+    }
+
+    /**
      * @param string|null $endpoint
      * @return string
      */
