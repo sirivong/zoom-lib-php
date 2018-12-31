@@ -14,12 +14,17 @@ class Billing extends Resource
     protected $endpoint = 'accounts';
 
     /**
-     * @param string $accountId
-     * @return object|\Psr\Http\Message\ResponseInterface|null
+     * @param string|null $accountId
+     * @param string|null $endpoint
+     * @param array|null $query
+     * @return mixed
      */
-    public function getBilling(string $accountId)
+    public function get(?string $accountId = null, ?string $endpoint = null, ?array $query = [])
     {
+        if (empty($accountId)) {
+            throw new \InvalidArgumentException('Account ID is invalid.');
+        }
         $endpoint = sprintf("%s/%s/billing", $this->endpoint(), $accountId);
-        return $this->get($endpoint);
+        return $this->get(null, $endpoint, $query);
     }
 }

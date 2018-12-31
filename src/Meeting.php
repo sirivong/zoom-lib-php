@@ -14,27 +14,26 @@ class Meeting extends Resource
     protected $endpoint = 'meetings';
 
     /**
-     * @param int $meetingId
-     * @param int $pageNumber
-     * @param int $pageSize
-     * @param null $occurrenceId
-     * @param null $status
+     * @param string|null $userId
+     * @param string|null $endpoint
+     * @param array|null $query
+     * @return mixed
+     */
+    public function get(?string $userId = null, ?string $endpoint = null, ?array $query = [])
+    {
+        $endpoint = sprintf("%s/%s/meetings", $this->endpoint('users'), $userId);
+        return parent::get(null, $endpoint, $query);
+    }
+
+    /**
+     * @param string $meetingId
+     * @param array $query
      * @return object|\Psr\Http\Message\ResponseInterface|null
      */
-    public function registrants(int $meetingId, int $pageNumber = 1, int $pageSize = 30, $occurrenceId = null, $status = null)
+    public function registrants(string $meetingId, array $query = [])
     {
         $endpoint = sprintf("%s/%s/registrants", $this->endpoint(), $meetingId);
-        $query = [
-            'page_number' => $pageNumber,
-            'page_size' => $pageSize,
-        ];
-        if (!empty($occurrenceId)) {
-            $query['occurrence_id'] = $occurrenceId;
-        }
-        if (!empty($status)) {
-            $query['status'] = $status;
-        }
-        return $this->getObjects($endpoint, $query);
+        return $this->get(null, $endpoint, $query);
     }
 
     /**
@@ -46,22 +45,19 @@ class Meeting extends Resource
     {
         $endpoint = sprintf("%s/%s/status", $this->endpoint(), $meetingId);
         $query = ['action' => 'end'];
-        return $this->put($endpoint, $query);
+        return $this->zoom->put($endpoint, $query);
     }
 
     /**
-     * @param int $meetingId
+     * @param string $meetingId
      * @param null $occurrenceId
      * @return mixed|object|\Psr\Http\Message\ResponseInterface|null
      * @throws \Exception
      */
-    public function delete(int $meetingId, $occurrenceId = null)
+    public function delete(string $meetingId, $occurrenceId = null)
     {
         $endpoint = sprintf("%s/%s", $this->endpoint(), $meetingId);
-        $query = [];
-        if (!empty($occurrenceId)) {
-            $query = ['occurrence_id' => $occurrenceId];
-        }
-        return $this->delete($endpoint, $query);
+        $query = ['occurrence_id' => $occurrenceId];
+        return $this->zoom->delete($endpoint, $query);
     }
 }

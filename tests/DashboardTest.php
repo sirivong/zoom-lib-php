@@ -18,7 +18,7 @@ final class DashboardTest extends BaseTest
         $to = Carbon::now();
         $from = $to->clone();
         $from->subMonth(1);
-        $response = $this->client->dashboard->meetings($from, $to);
+        $response = $this->zoom->dashboard->meetings($from, $to);
         $this->assertNotEmpty($response);
     }
 
@@ -28,7 +28,7 @@ final class DashboardTest extends BaseTest
      * $to = Carbon::now();
      * $from = $to->clone();
      * $from->subMonth(1);
-     * $response = $this->client->dashboard->webinars($from, $to);
+     * $response = $this->zoom->dashboard->webinars($from, $to);
      * $this->assertNotEmpty($response);
      * }
      */

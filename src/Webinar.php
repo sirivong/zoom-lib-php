@@ -14,12 +14,17 @@ class Webinar extends Resource
     protected $endpoint = 'webinars';
 
     /**
-     * @param int $webinarId
-     * @return object|\Psr\Http\Message\ResponseInterface|null
-     * @throws \Exception
+     * @param string|null $userId
+     * @param string|null $endpoint
+     * @param array|null $query
+     * @return mixed
      */
-    public function webinar(int $webinarId)
+    public function get(?string $userId = null, ?string $endpoint = null, ?array $query = [])
     {
-        return $this->getObject((string)$webinarId);
+        if (empty($userId)) {
+            throw new \InvalidArgumentException('User ID or email is invalid.');
+        }
+        $endpoint = sprintf("%s/%s/webinars", $this->endpoint('users'), $userId);
+        return parent::get(null, $endpoint, $query);
     }
 }

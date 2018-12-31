@@ -13,7 +13,7 @@ final class ReportTest extends BaseTest
      */
     public function testCanGetDailyReport(): void
     {
-        $response = $this->client->report->getDailyReport();
+        $response = $this->zoom->report->dailyReport();
         $this->assertGreaterThan(0, count($response->dates));
     }
 }

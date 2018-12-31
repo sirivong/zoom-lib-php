@@ -7,11 +7,14 @@ use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Builder;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
+use Zoom\Transformers\Transformer;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\Client as HttpClient;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Zoom\Exceptions\InvalidResourceException;
+use Zoom\Exceptions\InvalidHttpMethodException;
 
 /**
  * Class Zoom
@@ -24,10 +27,13 @@ class Zoom
      */
     const BASE_URI = 'https://api.zoom.us';
 
+    const DEFAULT_PAGE_NUMBER = 1;
+    const DEFAULT_PAGE_SIZE = 30;
+
     /**
-     * @var array
+     * Standard HTTP verbs.
      */
-    private static $clients = [];
+    const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 
     /**
      * @var array
@@ -42,6 +48,7 @@ class Zoom
         'role' => Role::class,
         'report' => Report::class,
         'user' => User::class,
+        'webinar' => Webinar::class,
     ];
 
     /**
@@ -75,12 +82,7 @@ class Zoom
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
         $this->config = $config;
-
-        $this->initialize();
-
-        $hashKey = self::hashKey($apiKey, $apiSecret);
-        self::$clients[$hashKey] = $this;
-
+        $this->initHttpClient();
         return $this;
     }
 
@@ -93,42 +95,39 @@ class Zoom
     {
         $name = strtolower($name);
         if (in_array($name, array_keys(self::$resources))) {
-            $klazz = self::$resources[$name];
-            return new $klazz($this->httpClient, $this);
+            $class = self::$resources[$name];
+            return new $class($this);
         }
         throw new InvalidResourceException("Resource \"${name}\" does not exist.");
     }
 
     /**
-     * @param string $apiKey
-     * @param string $apiSecret
-     * @return string
+     * @param $name
+     * @param $arguments
+     * @return object|ResponseInterface|null
+     * @throws \Exception
      */
-    public static function hashKey(string $apiKey, string $apiSecret): string
+    public function __call($name, $arguments)
     {
-        // $hashKey = sha1($str);
-        $hashKey = $apiKey . $apiSecret;
-        return $hashKey;
-    }
-
-    /**
-     * @param string $apiKey
-     * @param string $apiSecret
-     * @param array $config
-     * @return Zoom
-     */
-    private static function getClient(string $apiKey, string $apiSecret, $config = []): Zoom
-    {
-        $hashKey = self::hashKey($apiKey, $apiSecret);
-        if (array_key_exists($hashKey, self::$clients)) {
-            return self::$clients[$hashKey];
+        $name = strtolower($name);
+        if (in_array($name, self::HTTP_METHODS)) {
+            $endpoint = null;
+            $query = [];
+            $transformer = null;
+            if (count($arguments) > 0) {
+                $endpoint = $arguments[0];
+                if (count($arguments) > 1) {
+                    $query = $arguments[1];
+                }
+                if (count($arguments) > 2) {
+                    $transformer = $arguments[2];
+                }
+            } else {
+                throw new InvalidResourceException("Invalid endpoint for method: ${name}");
+            }
+            return $this->request($name, $endpoint, $query, $transformer);
         }
-
-        $klazz = __CLASS__;
-        $klazz = new $klazz($apiKey, $apiSecret, $config);
-        self::$clients[$hashKey] = $klazz;
-
-        return $klazz;
+        throw new InvalidHttpMethodException("Invalid method: ${name}");
     }
 
     /**
@@ -142,10 +141,33 @@ class Zoom
         $_name = strtolower($name);
         if (in_array($_name, array_keys(self::$resources))) {
             list($apiKey, $apiSecret) = $arguments;
-            $config = count($arguments) >= 3 ? $arguments[2] : null;
-            return self::getClient($apiKey, $apiSecret, $config)->$_name;
+            $config = count($arguments) >= 3 ? $arguments[2] : [];
+            $class = __CLASS__;
+            return (new $class($apiKey, $apiSecret, $config))->$_name;
         }
         throw new InvalidResourceException("Resource \"${name}\" does not exist.");
+    }
+
+    /**
+     * @param string $method
+     * @param string $endpoint
+     * @param array $query
+     * @param Transformer $transformer
+     * @return object|ResponseInterface|null
+     * @throws \Exception
+     */
+    protected function request(string $method, string $endpoint, $query = [], Transformer $transformer = null)
+    {
+        $method = strtolower($method);
+        if (!in_array($method, self::HTTP_METHODS)) {
+            throw new InvalidHttpMethodException("Invalid method: ${method}");
+        }
+        $compoundedQuery = $this->buildQuery($query);
+        $response = $this->httpClient->$method($endpoint, $compoundedQuery);
+        if ($transformer) {
+            return $transformer->transform($response);
+        }
+        return $response;
     }
 
     /**
@@ -165,9 +187,34 @@ class Zoom
     }
 
     /**
+     * @param array $query
+     * @return array
+     */
+    protected function buildQuery($query = []): array
+    {
+        $compoundedQuery = [
+            'query' => [
+                'page_number' => self::DEFAULT_PAGE_NUMBER,
+                'page_size' => self::DEFAULT_PAGE_SIZE,
+            ]
+        ];
+        if (!empty($query)) {
+            if (array_key_exists('query', $query)) {
+                $compoundedQuery = array_merge_recursive($compoundedQuery, $query);
+            } else {
+                $compoundedQuery = array_merge($compoundedQuery, ['query' => $query]);
+            }
+            $compoundedQuery['query'] = array_filter($compoundedQuery['query'], function ($v) {
+                return $v !== null;
+            });
+        }
+        return $compoundedQuery;
+    }
+
+    /**
      *
      */
-    protected function initialize(): void
+    protected function initHttpClient(): void
     {
         $stack = HandlerStack::create(new CurlHandler());
         $stack->push(Middleware::mapRequest(function (RequestInterface $request) {
