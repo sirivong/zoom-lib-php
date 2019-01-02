@@ -2,8 +2,6 @@
 
 namespace Zoom;
 
-use Carbon\Carbon;
-
 /**
  * Class Report
  * @package Zoom
@@ -18,12 +16,13 @@ class Report extends Resource
     /**
      * @param int $month
      * @param int $year
-     * @return object|\Psr\Http\Message\ResponseInterface|null
+     * @return mixed
+     * @throws \Exception
      */
     public function dailyReport(int $month = -1, int $year = -1)
     {
         if (!($month && $year)) {
-            $now = Carbon::now();
+            $now = new \DateTime('now');
             $month = $now->month;
             $year = $now->year;
         }

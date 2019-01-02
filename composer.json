@@ -11,7 +11,6 @@
   "require": {
     "php": ">=7.1.0",
     "guzzlehttp/guzzle": "~6.0",
-    "nesbot/carbon": "^2.8",
     "lcobucci/jwt": "^3.2"
   },
   "authors": [
