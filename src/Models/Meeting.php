@@ -6,7 +6,7 @@ namespace Zoom\Models;
  * Class Meeting
  * @package Zoom\Models
  */
-class Meeting extends Model
+class Meeting extends BaseModel
 {
 
     /**
