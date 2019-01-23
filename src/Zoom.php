@@ -162,8 +162,8 @@ class Zoom
         if (!in_array($method, self::HTTP_METHODS)) {
             throw new InvalidHttpMethodException("Invalid method: ${method}");
         }
-        $compoundedQuery = $this->buildQuery($query);
-        $response = $this->httpClient->$method($endpoint, $compoundedQuery);
+        $content = $this->buildQuery($query);
+        $response = $this->httpClient->$method($endpoint, $content);
         if ($transformer) {
             return $transformer->transform($response);
         }
@@ -198,6 +198,7 @@ class Zoom
                 'page_size' => self::DEFAULT_PAGE_SIZE,
             ]
         ];
+
         if (!empty($query)) {
             if (array_key_exists('query', $query)) {
                 $compoundedQuery = array_merge_recursive($compoundedQuery, $query);
@@ -207,6 +208,11 @@ class Zoom
             $compoundedQuery['query'] = array_filter($compoundedQuery['query'], function ($v) {
                 return $v !== null;
             });
+
+            unset($query['query']);
+            if (!empty($query)) {
+                $compoundedQuery = array_merge_recursive($compoundedQuery, $query);
+            }
         }
         return $compoundedQuery;
     }

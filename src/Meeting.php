@@ -2,6 +2,7 @@
 
 namespace Zoom;
 
+use GuzzleHttp\RequestOptions;
 use Zoom\Models\Meeting as MeetingModel;
 
 /**
@@ -73,7 +74,7 @@ class Meeting extends Resource
     public function create(string $host, $meeting)
     {
         $endpoint = sprintf("%s/%s/meetings", $this->endpoint('users'), $host);
-        return $this->zoom->post($endpoint, $meeting);
+        return $this->zoom->post($endpoint, [RequestOptions::JSON => $meeting]);
     }
 
     /**
@@ -84,6 +85,6 @@ class Meeting extends Resource
     public function update(string $meetingId, $meeting)
     {
         $endpoint = sprintf("%s/%s/meetings", $this->endpoint(), $meetingId);
-        return $this->zoom->patch($endpoint, $meeting);
+        return $this->zoom->patch($endpoint, [RequestOptions::JSON => $meeting]);
     }
 }
