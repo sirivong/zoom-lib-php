@@ -67,12 +67,23 @@ class Meeting extends Resource
 
     /**
      * @param string $host
-     * @param MeetingModel $meeting
+     * @param $meeting
      * @return mixed
      */
-    public function create(string $host, MeetingModel $meeting)
+    public function create(string $host, $meeting)
     {
         $endpoint = sprintf("%s/%s/meetings", $this->endpoint('users'), $host);
-        return $this->zoom->post($endpoint, $meeting->toArray());
+        return $this->zoom->post($endpoint, $meeting);
+    }
+
+    /**
+     * @param string $meetingId
+     * @param $meeting
+     * @return mixed
+     */
+    public function update(string $meetingId, $meeting)
+    {
+        $endpoint = sprintf("%s/%s/meetings", $this->endpoint(), $meetingId);
+        return $this->zoom->patch($endpoint, $meeting);
     }
 }
