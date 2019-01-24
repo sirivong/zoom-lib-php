@@ -84,7 +84,7 @@ class Meeting extends Resource
      */
     public function update(string $meetingId, $meeting)
     {
-        $endpoint = sprintf("%s/%s/meetings", $this->endpoint(), $meetingId);
+        $endpoint = sprintf("%s/%s", $this->endpoint(), $meetingId);
         return $this->zoom->patch($endpoint, [RequestOptions::JSON => $meeting]);
     }
 }
