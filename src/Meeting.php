@@ -2,6 +2,9 @@
 
 namespace Zoom;
 
+use GuzzleHttp\RequestOptions;
+use Zoom\Models\Meeting as MeetingModel;
+
 /**
  * Class Meeting
  * @package Zoom
@@ -61,5 +64,27 @@ class Meeting extends Resource
         $endpoint = sprintf("%s/%s", $this->endpoint(), $meetingId);
         $query = ['occurrence_id' => $occurrenceId];
         return $this->zoom->delete($endpoint, $query);
+    }
+
+    /**
+     * @param string $host
+     * @param $meeting
+     * @return mixed
+     */
+    public function create(string $host, $meeting)
+    {
+        $endpoint = sprintf("%s/%s/meetings", $this->endpoint('users'), $host);
+        return $this->zoom->post($endpoint, [RequestOptions::JSON => $meeting]);
+    }
+
+    /**
+     * @param string $meetingId
+     * @param $meeting
+     * @return mixed
+     */
+    public function update(string $meetingId, $meeting)
+    {
+        $endpoint = sprintf("%s/%s", $this->endpoint(), $meetingId);
+        return $this->zoom->patch($endpoint, [RequestOptions::JSON => $meeting]);
     }
 }
